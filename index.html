@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テスト太郎の会社 | AI・テクノロジーで未来を創る</title>
+  <style>
+    /* === リセット・ベース === */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* === 共通ユーティリティ === */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 100px 0; }
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+    .section-subtitle {
+      font-size: 16px;
+      color: #9ca3af;
+      max-width: 600px;
+      line-height: 1.8;
+    }
+    .section-header { text-align: center; margin-bottom: 60px; }
+    .section-header .section-subtitle { margin: 0 auto; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(59, 130, 246, 0.4); }
+    .btn-outline {
+      background: transparent;
+      color: #60a5fa;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+    }
+    .btn-outline:hover { background: rgba(96, 165, 250, 0.1); }
+
+    /* === フェードインアニメーション === */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* === ヘッダー === */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: padding 0.3s;
+    }
+    .header.scrolled { padding: 10px 0; }
+    .header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .nav { display: flex; align-items: center; gap: 32px; }
+    .nav a {
+      font-size: 14px;
+      color: #9ca3af;
+      transition: color 0.2s;
+    }
+    .nav a:hover { color: #60a5fa; }
+    .header-cta { display: flex; align-items: center; gap: 12px; }
+    .header-cta .btn { padding: 10px 24px; font-size: 14px; }
+
+    /* ハンバーガーメニュー */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* === ヒーローセクション === */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 80px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 700px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 100px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      font-size: 13px;
+      color: #60a5fa;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #34d399, #3b82f6, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #9ca3af;
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 560px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    /* === サービス一覧 === */
+    .services { background: #0f0f0f; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .service-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 36px 28px;
+      transition: all 0.3s;
+    }
+    .service-card:hover {
+      background: rgba(59, 130, 246, 0.05);
+      border-color: rgba(59, 130, 246, 0.15);
+      transform: translateY(-4px);
+    }
+    .service-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(59, 130, 246, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .service-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .service-card p {
+      font-size: 14px;
+      color: #9ca3af;
+      line-height: 1.7;
+    }
+
+    /* === 実績セクション === */
+    .stats {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(37, 99, 235, 0.05));
+      border-top: 1px solid rgba(59, 130, 246, 0.1);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+      padding: 80px 0;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+    .stat-item h3 {
+      font-size: 48px;
+      font-weight: 800;
+      color: #60a5fa;
+      margin-bottom: 8px;
+    }
+    .stat-item p {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    /* === お知らせ === */
+    .news-list { display: flex; flex-direction: column; gap: 16px; }
+    .news-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 28px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      transition: all 0.25s;
+    }
+    .news-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(59, 130, 246, 0.15);
+    }
+    .news-date {
+      font-size: 13px;
+      color: #6b7280;
+      white-space: nowrap;
+      min-width: 100px;
+    }
+    .news-tag {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(59, 130, 246, 0.1);
+      color: #60a5fa;
+      white-space: nowrap;
+    }
+    .news-title {
+      font-size: 15px;
+      color: #e0e0e0;
+      flex: 1;
+    }
+
+    /* === 会社概要 === */
+    .about { background: #0f0f0f; }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .about-mission h3 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .about-mission p {
+      font-size: 16px;
+      color: #9ca3af;
+      line-height: 1.9;
+      margin-bottom: 16px;
+    }
+    .about-ceo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .about-ceo-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .about-ceo-name { font-size: 15px; font-weight: 600; color: #fff; }
+    .about-ceo-role { font-size: 13px; color: #6b7280; }
+    .about-table { width: 100%; }
+    .about-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .about-table th,
+    .about-table td {
+      padding: 16px 20px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: left;
+    }
+    .about-table th {
+      color: #6b7280;
+      font-weight: 500;
+      width: 120px;
+    }
+    .about-table td { color: #d1d5db; }
+
+    /* === チーム紹介 === */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .team-card {
+      text-align: center;
+      padding: 40px 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .team-card:hover {
+      background: rgba(59, 130, 246, 0.05);
+      border-color: rgba(59, 130, 246, 0.15);
+    }
+    .team-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 auto 20px;
+    }
+    .team-card h3 { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .team-card .role { font-size: 13px; color: #60a5fa; margin-bottom: 12px; }
+    .team-card p { font-size: 13px; color: #9ca3af; line-height: 1.6; }
+
+    /* === CTAセクション === */
+    .cta {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.08));
+      text-align: center;
+      padding: 100px 0;
+    }
+    .cta h2 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .cta p {
+      font-size: 16px;
+      color: #9ca3af;
+      margin-bottom: 36px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+    /* === フッター === */
+    .footer {
+      background: #050505;
+      padding: 64px 0 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.7;
+      margin-top: 16px;
+    }
+    .footer-col h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a {
+      font-size: 14px;
+      color: #6b7280;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: #60a5fa; }
+    .footer-bottom {
+      text-align: center;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    /* === チャットボット === */
+    .chatbot-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(59, 130, 246, 0.4);
+      z-index: 200;
+      transition: all 0.3s;
+    }
+    .chatbot-toggle:hover { transform: scale(1.08); }
+    .chatbot-toggle svg { width: 28px; height: 28px; fill: #fff; }
+
+    .chatbot-window {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      width: 380px;
+      max-height: 520px;
+      background: #111;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      display: none;
+      flex-direction: column;
+      z-index: 200;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    }
+    .chatbot-window.open { display: flex; }
+
+    .chatbot-header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .chatbot-header-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chatbot-header-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .chatbot-header-info h4 { font-size: 15px; font-weight: 600; color: #fff; }
+    .chatbot-header-info p { font-size: 12px; color: rgba(255, 255, 255, 0.7); }
+
+    .chatbot-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 280px;
+      max-height: 320px;
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .chat-msg.bot {
+      background: rgba(255, 255, 255, 0.06);
+      color: #d1d5db;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-msg.user {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 20px 12px;
+    }
+    .chat-suggestion {
+      padding: 8px 14px;
+      font-size: 12px;
+      border-radius: 100px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chat-suggestion:hover {
+      background: rgba(59, 130, 246, 0.2);
+    }
+
+    .chatbot-input {
+      display: flex;
+      gap: 8px;
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .chatbot-input input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .chatbot-input input::placeholder { color: #6b7280; }
+    .chatbot-input input:focus { border-color: rgba(59, 130, 246, 0.4); }
+    .chatbot-input button {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+    }
+    .chatbot-input button:hover { opacity: 0.9; }
+    .chatbot-input button svg { width: 18px; height: 18px; fill: #fff; }
+
+    /* === レスポンシブ（タブレット） === */
+    @media (max-width: 1024px) {
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* === レスポンシブ（スマホ） === */
+    @media (max-width: 768px) {
+      .section { padding: 70px 0; }
+      .section-title { font-size: 28px; }
+
+      .nav, .header-cta { display: none; }
+      .nav.open, .header-cta.open { display: flex; }
+      .hamburger { display: flex; }
+
+      /* モバイルメニュー */
+      .nav.open {
+        position: fixed;
+        top: 68px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10, 10, 10, 0.98);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 99;
+      }
+      .nav.open a { font-size: 20px; color: #fff; }
+
+      .hero { min-height: auto; padding: 120px 0 80px; }
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { justify-content: center; }
+
+      .services-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .stat-item h3 { font-size: 36px; }
+      .team-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+
+      .news-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+      .cta h2 { font-size: 28px; }
+
+      /* チャットボットのモバイル対応 */
+      .chatbot-window {
+        right: 12px;
+        left: 12px;
+        bottom: 96px;
+        width: auto;
+        max-height: 460px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="header" id="header">
+    <div class="container">
+      <a href="#" class="logo">
+        <div class="logo-icon">T</div>
+        <span>テスト太郎の会社</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#services">サービス</a>
+        <a href="#news">お知らせ</a>
+        <a href="#about">会社概要</a>
+        <a href="#team">チーム</a>
+        <a href="#contact">お問い合わせ</a>
+      </nav>
+      <div class="header-cta">
+        <a href="#contact" class="btn btn-primary">無料相談</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="メニュー">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ヒーローセクション -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container">
+      <div class="hero-content fade-in">
+        <div class="hero-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          AI技術で、ビジネスの可能性を広げる
+        </div>
+        <h1>テクノロジーで<br><span class="gradient">未来を創造する</span></h1>
+        <p>最先端のAI技術とデータサイエンスで、企業のDX推進をトータルサポート。<br>確かな技術力で、お客様のビジネスに革新をもたらします。</p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">
+            無料相談を予約
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#services" class="btn btn-outline">サービスを見る</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- サービス一覧 -->
+  <section class="section services" id="services">
+    <div class="container">
+      <div class="section-header fade-in">
+        <p class="section-label">Services</p>
+        <h2 class="section-title">提供サービス</h2>
+        <p class="section-subtitle">AI・テクノロジーの力で、幅広い課題を解決するサービスを提供しています。</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card fade-in">
+          <div class="service-icon">🤖</div>
+          <h3>AI開発・導入支援</h3>
+          <p>機械学習・深層学習モデルの設計から実装、本番環境への導入まで、AIプロジェクトをワンストップでサポートします。</p>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">📊</div>
+          <h3>データ分析・活用</h3>
+          <p>蓄積されたデータを最大限に活用し、ビジネスインサイトの発見から意思決定の最適化までを支援します。</p>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">☁️</div>
+          <h3>クラウド基盤構築</h3>
+          <p>AWS・GCP・Azureなどのクラウドプラットフォームを活用し、スケーラブルで堅牢なインフラを構築します。</p>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">🔒</div>
+          <h3>セキュリティ対策</h3>
+          <p>AIを活用した脅威検知やゼロトラストアーキテクチャの導入で、企業のセキュリティを強化します。</p>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">💡</div>
+          <h3>DXコンサルティング</h3>
+          <p>デジタル変革の戦略策定から実行まで、経験豊富なコンサルタントがお客様の変革をリードします。</p>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">🎓</div>
+          <h3>AI研修・教育</h3>
+          <p>エンジニアから経営層まで、レベルに応じたAI・データサイエンスの研修プログラムを提供します。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 実績セクション -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid fade-in">
+        <div class="stat-item">
+          <h3>200+</h3>
+          <p>導入企業数</p>
+        </div>
+        <div class="stat-item">
+          <h3>500+</h3>
+          <p>プロジェクト実績</p>
+        </div>
+        <div class="stat-item">
+          <h3>98.5%</h3>
+          <p>顧客満足度</p>
+        </div>
+        <div class="stat-item">
+          <h3>30+</h3>
+          <p>対応業界数</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- お知らせ -->
+  <section class="section" id="news">
+    <div class="container">
+      <div class="section-header fade-in">
+        <p class="section-label">News</p>
+        <h2 class="section-title">お知らせ</h2>
+        <p class="section-subtitle">最新のニュースやイベント情報をお届けします。</p>
+      </div>
+      <div class="news-list fade-in">
+        <a href="#" class="news-item">
+          <span class="news-date">2026.03.25</span>
+          <span class="news-tag">プレスリリース</span>
+          <span class="news-title">大規模言語モデルを活用した業務自動化ソリューションの提供を開始</span>
+        </a>
+        <a href="#" class="news-item">
+          <span class="news-date">2026.03.15</span>
+          <span class="news-tag">イベント</span>
+          <span class="news-title">AI活用セミナー「生成AIで変わるビジネスの未来」を4月に開催</span>
+        </a>
+        <a href="#" class="news-item">
+          <span class="news-date">2026.03.01</span>
+          <span class="news-tag">お知らせ</span>
+          <span class="news-title">シリーズBラウンドにて総額10億円の資金調達を完了</span>
+        </a>
+        <a href="#" class="news-item">
+          <span class="news-date">2026.02.20</span>
+          <span class="news-tag">受賞</span>
+          <span class="news-title">「AI Innovation Award 2026」にて最優秀スタートアップ賞を受賞</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 会社概要 -->
+  <section class="section about" id="about">
+    <div class="container">
+      <div class="section-header fade-in">
+        <p class="section-label">About</p>
+        <h2 class="section-title">会社概要</h2>
+      </div>
+      <div class="about-grid fade-in">
+        <div class="about-mission">
+          <h3>テクノロジーの力で、<br>すべての企業に革新を。</h3>
+          <p>私たちは「テクノロジーで社会をより良くする」というミッションのもと、最先端のAI技術を活用して企業のデジタル変革を支援しています。</p>
+          <p>単なる技術提供ではなく、お客様のビジネスに深く寄り添い、真の課題解決パートナーとして共に歩んでいきます。</p>
+          <div class="about-ceo">
+            <div class="about-ceo-avatar">T</div>
+            <div>
+              <div class="about-ceo-name">テスト太郎</div>
+              <div class="about-ceo-role">代表取締役 CEO</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-table">
+          <table>
+            <tr><th>会社名</th><td>テスト太郎の会社</td></tr>
+            <tr><th>設立</th><td>2024年4月</td></tr>
+            <tr><th>代表者</th><td>テスト太郎</td></tr>
+            <tr><th>所在地</th><td>東京都渋谷区〇〇 1-2-3</td></tr>
+            <tr><th>事業内容</th><td>AI開発・導入支援、データ分析、DXコンサルティング</td></tr>
+            <tr><th>資本金</th><td>1,000万円</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- チーム紹介 -->
+  <section class="section" id="team">
+    <div class="container">
+      <div class="section-header fade-in">
+        <p class="section-label">Team</p>
+        <h2 class="section-title">主要メンバー</h2>
+        <p class="section-subtitle">多様な専門性を持つメンバーが、お客様の課題解決をリードします。</p>
+      </div>
+      <div class="team-grid fade-in">
+        <div class="team-card">
+          <div class="team-avatar">T</div>
+          <h3>テスト太郎</h3>
+          <div class="role">CEO / AIアーキテクト</div>
+          <p>東京大学卒。大手IT企業でAI部門を率いた後、当社を設立。</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">S</div>
+          <h3>鈴木花子</h3>
+          <div class="role">CTO / リードエンジニア</div>
+          <p>機械学習エンジニアとして10年以上の経験。クラウドアーキテクチャに精通。</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">T</div>
+          <h3>田中一郎</h3>
+          <div class="role">データサイエンティスト</div>
+          <p>統計学博士。金融・製造業界でのデータ分析プロジェクトを多数主導。</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">Y</div>
+          <h3>山田美咲</h3>
+          <div class="role">DXコンサルタント</div>
+          <p>大手コンサルファーム出身。50社以上のDX戦略策定・実行を支援。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTAセクション -->
+  <section class="cta" id="contact">
+    <div class="container fade-in">
+      <p class="section-label">Contact</p>
+      <h2>まずは無料相談から<br>始めませんか？</h2>
+      <p>AI導入やDX推進について、お気軽にご相談ください。<br>専門のコンサルタントが丁寧にお応えします。</p>
+      <div class="cta-actions">
+        <a href="#" class="btn btn-primary">
+          無料相談を予約する
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="btn btn-outline">資料をダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon">T</div>
+            <span>テスト太郎の会社</span>
+          </div>
+          <p>AI・テクノロジーの力で企業のデジタル変革を支援し、より良い未来を創造します。</p>
+        </div>
+        <div class="footer-col">
+          <h4>サービス</h4>
+          <ul>
+            <li><a href="#">AI開発・導入支援</a></li>
+            <li><a href="#">データ分析・活用</a></li>
+            <li><a href="#">クラウド基盤構築</a></li>
+            <li><a href="#">DXコンサルティング</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>会社情報</h4>
+          <ul>
+            <li><a href="#about">会社概要</a></li>
+            <li><a href="#team">チーム</a></li>
+            <li><a href="#news">お知らせ</a></li>
+            <li><a href="#">採用情報</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>お問い合わせ</h4>
+          <ul>
+            <li><a href="#">無料相談</a></li>
+            <li><a href="#">資料請求</a></li>
+            <li><a href="#">プライバシーポリシー</a></li>
+            <li><a href="#">利用規約</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 テスト太郎の会社. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- チャットボット トグルボタン -->
+  <button class="chatbot-toggle" id="chatbotToggle" aria-label="チャットボットを開く">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/><path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+  </button>
+
+  <!-- チャットボット ウィンドウ -->
+  <div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+      <div class="chatbot-header-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+      </div>
+      <div class="chatbot-header-info">
+        <h4>AIアシスタント</h4>
+        <p>お気軽にご質問ください</p>
+      </div>
+    </div>
+    <div class="chatbot-messages" id="chatMessages">
+      <div class="chat-msg bot">こんにちは！テスト太郎の会社へようこそ。サービスや会社についてお気軽にご質問ください。</div>
+    </div>
+    <div class="chat-suggestions" id="chatSuggestions">
+      <button class="chat-suggestion" data-msg="サービスについて教えて">サービスについて</button>
+      <button class="chat-suggestion" data-msg="料金はいくらですか？">料金について</button>
+      <button class="chat-suggestion" data-msg="お問い合わせしたい">お問い合わせ</button>
+      <button class="chat-suggestion" data-msg="会社について教えて">会社概要</button>
+    </div>
+    <div class="chatbot-input">
+      <input type="text" id="chatInput" placeholder="メッセージを入力..." />
+      <button id="chatSend" aria-label="送信">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* === ハンバーガーメニュー === */
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('nav');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      nav.classList.toggle('open');
+    });
+    /* ナビリンクをクリックしたらメニューを閉じる */
+    nav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        nav.classList.remove('open');
+      });
+    });
+
+    /* === ヘッダーのスクロール制御 === */
+    window.addEventListener('scroll', () => {
+      document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    /* === フェードインアニメーション === */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    /* === チャットボット === */
+    const chatToggle = document.getElementById('chatbotToggle');
+    const chatWindow = document.getElementById('chatbotWindow');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    const chatSuggestions = document.getElementById('chatSuggestions');
+
+    /* チャットウィンドウの開閉 */
+    chatToggle.addEventListener('click', () => {
+      chatWindow.classList.toggle('open');
+    });
+
+    /* 定型応答データ */
+    const responses = {
+      'サービス': 'AI開発・導入支援、データ分析、クラウド基盤構築、セキュリティ対策、DXコンサルティング、AI研修の6つのサービスを提供しています。詳しくは上部の「サービス」セクションをご覧ください。',
+      '料金': '料金はプロジェクトの規模や内容によって異なります。まずは無料相談をご利用いただき、お見積もりをさせていただきます。お気軽にお問い合わせください。',
+      '問い合わせ': 'お問い合わせありがとうございます。ページ上部の「無料相談」ボタンから、カウンセリングのご予約が可能です。担当者が折り返しご連絡いたします。',
+      '会社': 'テスト太郎の会社は2024年に設立されたAI・テクノロジー企業です。「テクノロジーで社会をより良くする」をミッションに、200社以上の企業のDX推進を支援しています。',
+      'AI': '最新のAI技術（大規模言語モデル、機械学習、深層学習など）を活用し、お客様のビジネス課題を解決します。導入実績は500件以上です。',
+      'チーム': 'CEOのテスト太郎をはじめ、CTO鈴木花子、データサイエンティスト田中一郎、DXコンサルタント山田美咲など、各分野のスペシャリストが在籍しています。',
+    };
+
+    /* メッセージ追加関数 */
+    function addMessage(text, isUser) {
+      const msg = document.createElement('div');
+      msg.className = `chat-msg ${isUser ? 'user' : 'bot'}`;
+      msg.textContent = text;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    /* キーワードマッチで応答を返す */
+    function getResponse(input) {
+      const text = input.toLowerCase();
+      for (const [keyword, response] of Object.entries(responses)) {
+        if (text.includes(keyword.toLowerCase())) return response;
+      }
+      return 'お問い合わせありがとうございます。詳しくは「無料相談」ボタンからご予約いただくか、下の候補ボタンからご質問をお選びください。';
+    }
+
+    /* メッセージ送信処理 */
+    function sendMessage(text) {
+      if (!text.trim()) return;
+      addMessage(text, true);
+      /* サジェストを非表示 */
+      chatSuggestions.style.display = 'none';
+      /* 少し遅延して応答 */
+      setTimeout(() => {
+        addMessage(getResponse(text), false);
+      }, 500);
+    }
+
+    /* 送信ボタン */
+    chatSend.addEventListener('click', () => {
+      sendMessage(chatInput.value);
+      chatInput.value = '';
+    });
+
+    /* Enterキーで送信 */
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage(chatInput.value);
+        chatInput.value = '';
+      }
+    });
+
+    /* サジェストボタン */
+    chatSuggestions.querySelectorAll('.chat-suggestion').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sendMessage(btn.dataset.msg);
+      });
+    });
+  </script>
+</body>
+</html>
