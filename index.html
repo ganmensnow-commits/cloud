@@ -604,6 +604,65 @@
     .chatbot-input button:hover { opacity: 0.9; }
     .chatbot-input button svg { width: 18px; height: 18px; fill: #fff; }
 
+    /* APIキー設定エリア */
+    .chatbot-apikey {
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+    }
+    .apikey-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .apikey-row input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+    .apikey-row input::placeholder { color: #6b7280; }
+    .apikey-row button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .apikey-row button:hover { background: rgba(59, 130, 246, 0.3); }
+    .apikey-status {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .apikey-status.active { color: #60a5fa; }
+    .apikey-status a { color: #60a5fa; text-decoration: underline; }
+
+    /* ローディングアニメーション */
+    .chat-msg.loading span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #6b7280;
+      margin: 0 2px;
+      animation: dot-blink 1.4s infinite;
+    }
+    .chat-msg.loading span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-msg.loading span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-blink {
+      0%, 80%, 100% { opacity: 0.3; }
+      40% { opacity: 1; }
+    }
+
     /* === レスポンシブ（タブレット） === */
     @media (max-width: 1024px) {
       .services-grid { grid-template-columns: repeat(2, 1fr); }
@@ -960,6 +1019,16 @@
         <p>お気軽にご質問ください</p>
       </div>
     </div>
+    <div class="chatbot-apikey" id="apikeyArea">
+      <div class="apikey-row">
+        <input type="password" id="apikeyInput" placeholder="sk-ant-... APIキーを入力" />
+        <button id="apikeySave">保存</button>
+      </div>
+      <div class="apikey-status" id="apikeyStatus">
+        未設定（定型応答モード）<br>
+        <a href="https://console.anthropic.com/" target="_blank" rel="noopener">APIキーを取得 →</a>
+      </div>
+    </div>
     <div class="chatbot-messages" id="chatMessages">
       <div class="chat-msg bot">こんにちは！テスト太郎の会社へようこそ。サービスや会社についてお気軽にご質問ください。</div>
     </div>
@@ -1015,13 +1084,122 @@
     const chatInput = document.getElementById('chatInput');
     const chatSend = document.getElementById('chatSend');
     const chatSuggestions = document.getElementById('chatSuggestions');
+    const apikeyInput = document.getElementById('apikeyInput');
+    const apikeySave = document.getElementById('apikeySave');
+    const apikeyStatus = document.getElementById('apikeyStatus');
+
+    /* 会話履歴（Claude API用） */
+    let conversationHistory = [];
+
+    /* システムプロンプト */
+    const SYSTEM_PROMPT = `あなたは「テスト太郎の会社」の公式AIアシスタントです。丁寧で親しみやすい口調で応答してください。
+以下の自社情報に基づいて正確に回答してください。情報にない内容を聞かれた場合は「お問い合わせフォームまたはお電話でご確認ください」と案内してください。
+
+【会社情報】
+- 会社名: テスト太郎の会社
+- 設立: 2024年4月
+- 代表: テスト太郎（CEO / AIアーキテクト）
+- 所在地: 東京都渋谷区〇〇 1-2-3 テックビル5F
+- ミッション: テクノロジーで社会をより良くする
+
+【サービス名】
+AI導入パートナー
+
+【サービス内容】
+1. AI開発・導入支援 — 機械学習・深層学習モデルの設計から本番導入まで。要件定義、PoC、開発、運用保守をワンストップで提供。
+2. データ分析・活用 — 蓄積データからビジネスインサイトを発見し、意思決定を最適化。BIダッシュボード構築も対応。
+3. クラウド基盤構築 — AWS・GCP・Azure対応のスケーラブルなインフラ設計・構築・移行支援。
+4. セキュリティ対策 — AI活用の脅威検知やゼロトラストアーキテクチャの導入支援。
+5. DXコンサルティング — デジタル変革の戦略策定から実行まで、伴走型でサポート。
+6. AI研修・教育 — エンジニアから経営層までレベル別の研修プログラム。オンライン・オフライン両対応。
+
+【料金】
+- AI開発・導入支援: 月額50万円〜（プロジェクト規模により変動）
+- データ分析・活用: 月額30万円〜
+- クラウド基盤構築: 初期費用100万円〜 + 月額運用費20万円〜
+- セキュリティ対策: 月額25万円〜
+- DXコンサルティング: 月額40万円〜
+- AI研修・教育: 1回15万円〜（カスタマイズ内容により変動）
+※すべて税別。詳細はお見積もりをご依頼ください。初回相談は無料です。
+
+【営業時間・連絡先】
+- 営業時間: 平日 9:00〜18:00（土日祝休み）
+- 電話番号: 03-1234-5678
+- メールアドレス: info@test-taro-company.example.com
+- お問い合わせフォーム: サイト上部の「無料相談」ボタンからご予約可能
+
+【実績】
+- 導入企業数: 200社以上
+- プロジェクト実績: 500件以上
+- 顧客満足度: 98.5%
+- 対応業界: 30以上（金融、製造、小売、医療、教育、不動産など）
+
+【主要メンバー】
+- テスト太郎（CEO / AIアーキテクト）— 東京大学卒。大手IT企業でAI部門を率いた後、当社を設立。
+- 鈴木花子（CTO / リードエンジニア）— 機械学習エンジニアとして10年以上の経験。
+- 田中一郎（データサイエンティスト）— 統計学博士。金融・製造業界でのデータ分析プロジェクトを多数主導。
+- 山田美咲（DXコンサルタント）— 大手コンサルファーム出身。50社以上のDX戦略策定・実行を支援。
+
+【よくある質問と回答】
+Q: 無料相談では何ができますか？
+A: 現状のヒアリングと課題整理、AI活用の方向性のご提案を行います。所要時間は約60分で、オンライン・対面どちらも可能です。
+
+Q: 契約期間の縛りはありますか？
+A: 最低契約期間は3ヶ月です。その後は1ヶ月単位で継続・解約が可能です。
+
+Q: 小規模な会社でも依頼できますか？
+A: はい、従業員数に関わらずご依頼いただけます。スタートアップ向けのライトプランもご用意しています。
+
+Q: リモートでの対応は可能ですか？
+A: はい、フルリモートでの対応が可能です。全国どこからでもご相談いただけます。
+
+Q: 導入までの期間はどのくらいですか？
+A: プロジェクトの規模によりますが、PoCは約1〜2ヶ月、本格導入は3〜6ヶ月が目安です。
+
+回答は簡潔に（200文字以内を目安）お願いします。`;
 
     /* チャットウィンドウの開閉 */
     chatToggle.addEventListener('click', () => {
       chatWindow.classList.toggle('open');
     });
 
-    /* 定型応答データ */
+    /* === APIキー管理 === */
+    function getApiKey() {
+      return sessionStorage.getItem('claude_api_key') || '';
+    }
+
+    function updateApikeyUI() {
+      const key = getApiKey();
+      if (key) {
+        apikeyInput.value = '';
+        apikeyInput.placeholder = '••••••••（設定済み）';
+        apikeyStatus.textContent = 'AI応答モード ✓';
+        apikeyStatus.className = 'apikey-status active';
+      } else {
+        apikeyInput.placeholder = 'sk-ant-... APIキーを入力';
+        apikeyStatus.innerHTML = '未設定（定型応答モード）<br><a href="https://console.anthropic.com/" target="_blank" rel="noopener">APIキーを取得 →</a>';
+        apikeyStatus.className = 'apikey-status';
+      }
+    }
+
+    apikeySave.addEventListener('click', () => {
+      const key = apikeyInput.value.trim();
+      if (key) {
+        sessionStorage.setItem('claude_api_key', key);
+        conversationHistory = [];
+        updateApikeyUI();
+      } else if (getApiKey()) {
+        /* 空で保存 → キーを削除 */
+        sessionStorage.removeItem('claude_api_key');
+        conversationHistory = [];
+        updateApikeyUI();
+      }
+    });
+
+    /* 起動時にAPIキー状態を反映 */
+    updateApikeyUI();
+
+    /* 定型応答データ（フォールバック用） */
     const responses = {
       'サービス': 'AI開発・導入支援、データ分析、クラウド基盤構築、セキュリティ対策、DXコンサルティング、AI研修の6つのサービスを提供しています。詳しくは上部の「サービス」セクションをご覧ください。',
       '料金': '料金はプロジェクトの規模や内容によって異なります。まずは無料相談をご利用いただき、お見積もりをさせていただきます。お気軽にお問い合わせください。',
@@ -1031,16 +1209,7 @@
       'チーム': 'CEOのテスト太郎をはじめ、CTO鈴木花子、データサイエンティスト田中一郎、DXコンサルタント山田美咲など、各分野のスペシャリストが在籍しています。',
     };
 
-    /* メッセージ追加関数 */
-    function addMessage(text, isUser) {
-      const msg = document.createElement('div');
-      msg.className = `chat-msg ${isUser ? 'user' : 'bot'}`;
-      msg.textContent = text;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    /* キーワードマッチで応答を返す */
+    /* キーワードマッチで応答を返す（フォールバック） */
     function getResponse(input) {
       const text = input.toLowerCase();
       for (const [keyword, response] of Object.entries(responses)) {
@@ -1049,16 +1218,94 @@
       return 'お問い合わせありがとうございます。詳しくは「無料相談」ボタンからご予約いただくか、下の候補ボタンからご質問をお選びください。';
     }
 
+    /* メッセージ追加関数 */
+    function addMessage(text, isUser) {
+      const msg = document.createElement('div');
+      msg.className = `chat-msg ${isUser ? 'user' : 'bot'}`;
+      msg.textContent = text;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return msg;
+    }
+
+    /* ローディング表示 */
+    function showLoading() {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg bot loading';
+      msg.id = 'chatLoading';
+      msg.innerHTML = '<span></span><span></span><span></span>';
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideLoading() {
+      const el = document.getElementById('chatLoading');
+      if (el) el.remove();
+    }
+
+    /* Claude API呼び出し */
+    async function callClaudeAPI(userMessage) {
+      conversationHistory.push({ role: 'user', content: userMessage });
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': getApiKey(),
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: conversationHistory,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (res.status === 401) throw new Error('APIキーが無効です。正しいキーを入力してください。');
+        if (res.status === 429) throw new Error('リクエスト制限に達しました。少し時間をおいてお試しください。');
+        throw new Error(err.error?.message || `エラーが発生しました（${res.status}）`);
+      }
+
+      const data = await res.json();
+      const assistantMessage = data.content[0].text;
+      conversationHistory.push({ role: 'assistant', content: assistantMessage });
+      return assistantMessage;
+    }
+
     /* メッセージ送信処理 */
-    function sendMessage(text) {
+    async function sendMessage(text) {
       if (!text.trim()) return;
       addMessage(text, true);
-      /* サジェストを非表示 */
       chatSuggestions.style.display = 'none';
-      /* 少し遅延して応答 */
-      setTimeout(() => {
-        addMessage(getResponse(text), false);
-      }, 500);
+
+      const apiKey = getApiKey();
+
+      if (apiKey) {
+        /* Claude API モード */
+        showLoading();
+        chatInput.disabled = true;
+        chatSend.disabled = true;
+        try {
+          const reply = await callClaudeAPI(text);
+          hideLoading();
+          addMessage(reply, false);
+        } catch (e) {
+          hideLoading();
+          addMessage(e.message, false);
+        }
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+        chatInput.focus();
+      } else {
+        /* 定型応答フォールバック */
+        setTimeout(() => {
+          addMessage(getResponse(text), false);
+        }, 500);
+      }
     }
 
     /* 送信ボタン */
