@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーコードスキャナー</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* ヘッダー */
+        header {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            padding: 1.2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #475569;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        header h1 .icon {
+            font-size: 1.6rem;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.3rem;
+        }
+
+        /* メインコンテンツ */
+        main {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* スキャナーエリア */
+        .scanner-section {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            margin-bottom: 1.5rem;
+        }
+
+        .scanner-header {
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .scanner-header h2 {
+            font-size: 1rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .status-badge.ready {
+            background: #065f46;
+            color: #6ee7b7;
+        }
+
+        .status-badge.scanning {
+            background: #1e40af;
+            color: #93c5fd;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-badge.stopped {
+            background: #44403c;
+            color: #a8a29e;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        #reader {
+            width: 100%;
+            background: #000;
+        }
+
+        #reader video {
+            border-radius: 0 !important;
+        }
+
+        /* html5-qrcodeのスタイル上書き */
+        #reader img[alt="Info icon"] {
+            display: none !important;
+        }
+
+        #reader__scan_region {
+            min-height: 250px;
+        }
+
+        #reader__dashboard {
+            display: none !important;
+        }
+
+        /* ボタン */
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem 1.2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        }
+
+        .btn-primary:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+        }
+
+        /* 手動入力 */
+        .manual-input {
+            padding: 0 1.2rem 1rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-row input:focus {
+            border-color: #3b82f6;
+        }
+
+        .input-row input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-search {
+            padding: 0.7rem 1.2rem;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-search:hover {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+        }
+
+        .divider {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+        }
+
+        /* 商品情報カード */
+        .product-section {
+            margin-top: 0.5rem;
+        }
+
+        .product-card {
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-image-container {
+            position: relative;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            max-height: 300px;
+            overflow: hidden;
+        }
+
+        .product-image-container img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .no-image {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .no-image .icon {
+            font-size: 2.5rem;
+            opacity: 0.5;
+        }
+
+        .product-info {
+            padding: 1.5rem 1.2rem;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .product-brand {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .barcode-display {
+            display: inline-block;
+            background: #0f172a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .info-item {
+            background: #0f172a;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .info-value.price {
+            font-size: 1.3rem;
+            color: #fbbf24;
+            font-weight: 700;
+        }
+
+        /* 栄養情報 */
+        .nutrition-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #334155;
+        }
+
+        .nutrition-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.75rem;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .nutrition-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0.75rem;
+            background: #0f172a;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .nutrition-item .label {
+            color: #94a3b8;
+        }
+
+        .nutrition-item .value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        /* ローディング */
+        .loading {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* エラー・未発見 */
+        .message-card {
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .message-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .message-card h3 {
+            font-size: 1.1rem;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-card p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* スキャン履歴 */
+        .history-section {
+            margin-top: 1.5rem;
+        }
+
+        .history-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #263043;
+            border-color: #475569;
+        }
+
+        .history-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f8fafc;
+        }
+
+        .history-thumb-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-barcode {
+            font-size: 0.7rem;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+        }
+
+        .history-time {
+            font-size: 0.7rem;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.2rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nutrition-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><span class="icon">📷</span> バーコードスキャナー</h1>
+        <p class="subtitle">バーコードをスキャンして商品情報を表示</p>
+    </header>
+
+    <main>
+        <!-- スキャナーセクション -->
+        <section class="scanner-section">
+            <div class="scanner-header">
+                <h2>📸 カメラスキャン</h2>
+                <span id="statusBadge" class="status-badge stopped">停止中</span>
+            </div>
+
+            <div id="reader"></div>
+
+            <div class="btn-group">
+                <button id="startBtn" class="btn btn-primary" onclick="startScanner()">
+                    ▶ スキャン開始
+                </button>
+                <button id="stopBtn" class="btn btn-danger" onclick="stopScanner()" style="display:none;">
+                    ■ スキャン停止
+                </button>
+            </div>
+
+            <div class="divider">── または バーコード番号を手入力 ──</div>
+
+            <div class="manual-input">
+                <div class="input-row">
+                    <input type="text" id="barcodeInput" placeholder="バーコード番号を入力（例: 4901234567890）"
+                           onkeydown="if(event.key==='Enter') searchBarcode()">
+                    <button class="btn-search" onclick="searchBarcode()">検索</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 結果表示エリア -->
+        <div id="resultArea"></div>
+
+        <!-- スキャン履歴 -->
+        <div id="historyArea"></div>
+    </main>
+
+    <script>
+        let html5QrCode = null;
+        let isScanning = false;
+        // スキャン履歴
+        let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+
+        // 履歴を表示
+        renderHistory();
+
+        // スキャナーを開始
+        async function startScanner() {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const badge = document.getElementById('statusBadge');
+
+            try {
+                html5QrCode = new Html5Qrcode("reader");
+
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 280, height: 150 },
+                        aspectRatio: 1.5,
+                        formatsToSupport: [
+                            Html5QrcodeSupportedFormats.EAN_13,
+                            Html5QrcodeSupportedFormats.EAN_8,
+                            Html5QrcodeSupportedFormats.UPC_A,
+                            Html5QrcodeSupportedFormats.UPC_E,
+                            Html5QrcodeSupportedFormats.CODE_128,
+                            Html5QrcodeSupportedFormats.CODE_39,
+                            Html5QrcodeSupportedFormats.ITF,
+                            Html5QrcodeSupportedFormats.QR_CODE
+                        ]
+                    },
+                    onScanSuccess,
+                    () => {} // エラーは無視（スキャン中の通常動作）
+                );
+
+                isScanning = true;
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'flex';
+                badge.textContent = 'スキャン中';
+                badge.className = 'status-badge scanning';
+            } catch (err) {
+                console.error(err);
+                showMessage('error', 'カメラエラー', 'カメラへのアクセスが拒否されました。<br>ブラウザの設定でカメラの許可を確認してください。');
+            }
+        }
+
+        // スキャナーを停止
+        async function stopScanner() {
+            if (html5QrCode && isScanning) {
+                await html5QrCode.stop();
+                html5QrCode.clear();
+                isScanning = false;
+
+                document.getElementById('startBtn').style.display = 'flex';
+                document.getElementById('stopBtn').style.display = 'none';
+                document.getElementById('statusBadge').textContent = '停止中';
+                document.getElementById('statusBadge').className = 'status-badge stopped';
+            }
+        }
+
+        // スキャン成功時
+        async function onScanSuccess(decodedText) {
+            // 連続スキャンを防ぐため一時停止
+            await stopScanner();
+
+            // バイブレーション（対応端末のみ）
+            if (navigator.vibrate) navigator.vibrate(100);
+
+            // 商品情報を検索
+            await fetchProductInfo(decodedText);
+        }
+
+        // 手動入力で検索
+        async function searchBarcode() {
+            const input = document.getElementById('barcodeInput');
+            const barcode = input.value.trim();
+            if (!barcode) return;
+            input.value = '';
+            await fetchProductInfo(barcode);
+        }
+
+        // 商品情報をAPIから取得
+        async function fetchProductInfo(barcode) {
+            const resultArea = document.getElementById('resultArea');
+
+            // ローディング表示
+            resultArea.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">商品情報を検索中...</p>
+                    <p class="loading-text" style="font-family:monospace; margin-top:0.5rem; font-size:0.8rem;">${barcode}</p>
+                </div>
+            `;
+
+            try {
+                // Open Food Facts APIで検索
+                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+                const data = await response.json();
+
+                if (data.status === 1 && data.product) {
+                    renderProduct(data.product, barcode);
+                    addToHistory(data.product, barcode);
+                } else {
+                    showMessage('notfound', '商品が見つかりませんでした',
+                        `バーコード: ${barcode}<br><br>この商品はデータベースに登録されていません。<br>Open Food Facts は主に食品データベースのため、<br>食品以外の商品は見つからない場合があります。`);
+                }
+            } catch (err) {
+                console.error(err);
+                showMessage('error', '通信エラー',
+                    'サーバーとの通信に失敗しました。<br>インターネット接続を確認してください。');
+            }
+        }
+
+        // 商品情報を表示
+        function renderProduct(product, barcode) {
+            const resultArea = document.getElementById('resultArea');
+            const name = product.product_name || product.product_name_ja || '名称不明';
+            const brand = product.brands || '';
+            const imageUrl = product.image_url || product.image_front_url || '';
+            const categories = product.categories || '';
+            const quantity = product.quantity || '';
+            const origins = product.origins || product.countries || '';
+            const ingredients = product.ingredients_text || product.ingredients_text_ja || '';
+            const nutriments = product.nutriments || {};
+
+            // 栄養情報
+            const energy = nutriments['energy-kcal_100g'] || nutriments['energy-kcal'] || '';
+            const fat = nutriments.fat_100g || '';
+            const carbs = nutriments.carbohydrates_100g || '';
+            const protein = nutriments.proteins_100g || '';
+            const salt = nutriments.salt_100g || '';
+            const sugar = nutriments.sugars_100g || '';
+
+            let html = `
+                <div class="product-card">
+                    <div class="product-image-container">
+                        ${imageUrl
+                            ? `<img src="${imageUrl}" alt="${name}" onerror="this.parentElement.innerHTML='<div class=\\'no-image\\'><span class=\\'icon\\'>📦</span>画像なし</div>'">`
+                            : '<div class="no-image"><span class="icon">📦</span>画像なし</div>'}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${escapeHtml(name)}</h3>
+                        ${brand ? `<p class="product-brand">${escapeHtml(brand)}</p>` : ''}
+                        <span class="barcode-display">${barcode}</span>
+
+                        <div class="info-grid">
+                            ${categories ? `
+                                <div class="info-item full-width">
+                                    <div class="info-label">カテゴリ</div>
+                                    <div class="info-value">${escapeHtml(categories.split(',').slice(0, 3).join(', '))}</div>
+                                </div>
+                            ` : ''}
+                            ${quantity ? `
+                                <div class="info-item">
+                                    <div class="info-label">内容量</div>
+                                    <div class="info-value">${escapeHtml(quantity)}</div>
+                                </div>
+                            ` : ''}
+                            ${origins ? `
+                                <div class="info-item">
+                                    <div class="info-label">原産国</div>
+                                    <div class="info-value">${escapeHtml(origins)}</div>
+                                </div>
+                            ` : ''}
+                            ${ingredients ? `
+                                <div class="info-item full-width">
+                                    <div class="info-label">原材料</div>
+                                    <div class="info-value" style="font-size:0.8rem; line-height:1.5;">${escapeHtml(ingredients)}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        ${(energy || fat || carbs || protein) ? `
+                            <div class="nutrition-section">
+                                <h4 class="nutrition-title">🥗 栄養成分（100gあたり）</h4>
+                                <div class="nutrition-grid">
+                                    ${energy ? `<div class="nutrition-item"><span class="label">エネルギー</span><span class="value">${energy} kcal</span></div>` : ''}
+                                    ${fat ? `<div class="nutrition-item"><span class="label">脂質</span><span class="value">${fat} g</span></div>` : ''}
+                                    ${carbs ? `<div class="nutrition-item"><span class="label">炭水化物</span><span class="value">${carbs} g</span></div>` : ''}
+                                    ${protein ? `<div class="nutrition-item"><span class="label">タンパク質</span><span class="value">${protein} g</span></div>` : ''}
+                                    ${sugar ? `<div class="nutrition-item"><span class="label">糖類</span><span class="value">${sugar} g</span></div>` : ''}
+                                    ${salt ? `<div class="nutrition-item"><span class="label">食塩相当量</span><span class="value">${salt} g</span></div>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            resultArea.innerHTML = html;
+        }
+
+        // メッセージ表示
+        function showMessage(type, title, message) {
+            const resultArea = document.getElementById('resultArea');
+            const icon = type === 'error' ? '⚠️' : '🔍';
+            resultArea.innerHTML = `
+                <div class="message-card">
+                    <div class="icon">${icon}</div>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // 履歴に追加
+        function addToHistory(product, barcode) {
+            const entry = {
+                barcode,
+                name: product.product_name || product.product_name_ja || '名称不明',
+                image: product.image_small_url || product.image_url || '',
+                time: new Date().toISOString()
+            };
+
+            // 重複を除去して先頭に追加
+            scanHistory = scanHistory.filter(h => h.barcode !== barcode);
+            scanHistory.unshift(entry);
+            // 最大20件
+            scanHistory = scanHistory.slice(0, 20);
+
+            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+            renderHistory();
+        }
+
+        // 履歴を表示
+        function renderHistory() {
+            const area = document.getElementById('historyArea');
+            if (!scanHistory.length) {
+                area.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <section class="history-section">
+                    <h3 class="history-title">🕐 スキャン履歴</h3>
+                    <div class="history-list">
+            `;
+
+            for (const item of scanHistory) {
+                const time = new Date(item.time);
+                const timeStr = `${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}`;
+
+                html += `
+                    <div class="history-item" onclick="fetchProductInfo('${item.barcode}')">
+                        ${item.image
+                            ? `<img class="history-thumb" src="${item.image}" alt="" onerror="this.outerHTML='<div class=\\'history-thumb-placeholder\\'>📦</div>'">`
+                            : '<div class="history-thumb-placeholder">📦</div>'}
+                        <div class="history-info">
+                            <div class="history-name">${escapeHtml(item.name)}</div>
+                            <div class="history-barcode">${item.barcode}</div>
+                        </div>
+                        <div class="history-time">${timeStr}</div>
+                    </div>
+                `;
+            }
+
+            html += '</div></section>';
+            area.innerHTML = html;
+        }
+
+        // XSS対策
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
