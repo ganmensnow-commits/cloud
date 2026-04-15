@@ -727,14 +727,30 @@
             barcode = barcode.trim();
             // localStorageから最新データを再読込
             products = JSON.parse(localStorage.getItem('products') || '{}');
+
+            // デバッグ情報を表示
+            const registeredBarcodes = Object.keys(products);
+            const isFound = !!products[barcode];
+            const debugHtml = `
+                <div style="background:#1a1a2e; border:1px solid #fbbf24; border-radius:10px; padding:0.8rem 1rem; margin-bottom:1rem; font-size:0.75rem; font-family:monospace;">
+                    <div style="color:#fbbf24; font-weight:bold; margin-bottom:0.4rem;">🔍 デバッグ情報</div>
+                    <div style="color:#94a3b8;">スキャン値: <span style="color:#6ee7b7;">"${esc(barcode)}"</span> (${barcode.length}文字)</div>
+                    <div style="color:#94a3b8;">登録済み: ${isFound ? '<span style="color:#6ee7b7;">YES</span>' : '<span style="color:#f87171;">NO</span>'}</div>
+                    <div style="color:#94a3b8;">保存件数: ${registeredBarcodes.length}件</div>
+                    ${registeredBarcodes.length > 0 ? `<div style="color:#94a3b8; margin-top:0.3rem;">登録済みバーコード:<br>${registeredBarcodes.map(b => `<span style="color:#93c5fd;">"${b}"</span>`).join('<br>')}</div>` : ''}
+                </div>
+            `;
+
             // 既に登録済みならその商品を表示
             if (products[barcode]) {
-                showProductCard(barcode);
+                showResult(debugHtml);
+                document.getElementById('resultArea').innerHTML += '';
+                showProductCard(barcode, debugHtml);
                 return;
             }
 
             // 未登録 → APIで情報取得を試み、登録フォームを表示
-            showResult(`
+            showResult(debugHtml + `
                 <div class="loading">
                     <div class="spinner"></div>
                     <p style="color:#94a3b8;">商品情報を検索中...</p>
@@ -843,11 +859,12 @@
         }
 
         // 登録済み商品の表示
-        function showProductCard(barcode) {
+        function showProductCard(barcode, debugHtml) {
             const p = products[barcode];
             if (!p) return;
 
             showResult(`
+                ${debugHtml || ''}
                 <div class="product-card">
                     <div class="product-info">
                         <h3 class="product-name">${esc(p.name)}</h3>
