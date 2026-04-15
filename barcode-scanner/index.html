@@ -357,6 +357,139 @@
             font-weight: 700;
         }
 
+        /* 価格設定エリア */
+        .price-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 12px;
+            border: 1px solid #fbbf2433;
+        }
+
+        .price-section-title {
+            font-size: 0.8rem;
+            color: #fbbf24;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .price-display {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fbbf24;
+            margin-bottom: 0.6rem;
+        }
+
+        .price-display .yen {
+            font-size: 1.2rem;
+        }
+
+        .price-input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .price-input-row input {
+            flex: 1;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #fbbf24;
+            font-size: 1.1rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .price-input-row input:focus {
+            border-color: #fbbf24;
+        }
+
+        .price-input-row input::placeholder {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .btn-price {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-price-save {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #1a1a2e;
+        }
+
+        .btn-price-save:hover {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+
+        .btn-price-delete {
+            background: #ef44441a;
+            color: #f87171;
+            border: 1px solid #ef44444d;
+        }
+
+        .btn-price-delete:hover {
+            background: #ef44443d;
+        }
+
+        /* 価格一覧 */
+        .price-list-section {
+            margin-top: 1.5rem;
+        }
+
+        .price-list-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .price-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .price-list-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-list-item:hover {
+            background: #263043;
+            border-color: #475569;
+        }
+
+        .price-list-item .price-tag {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fbbf24;
+            white-space: nowrap;
+        }
+
         /* 栄養情報 */
         .nutrition-section {
             margin-top: 1rem;
@@ -593,9 +726,12 @@
         let isScanning = false;
         // スキャン履歴
         let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+        // 価格データ { barcode: { price: number, name: string, image: string } }
+        let priceData = JSON.parse(localStorage.getItem('priceData') || '{}');
 
-        // 履歴を表示
+        // 履歴・価格一覧を表示
         renderHistory();
+        renderPriceList();
 
         // スキャナーを開始
         async function startScanner() {
@@ -764,6 +900,20 @@
                             ` : ''}
                         </div>
 
+                        <div class="price-section">
+                            <div class="price-section-title">💰 価格設定</div>
+                            ${priceData[barcode]
+                                ? `<div class="price-display"><span class="yen">¥</span>${Number(priceData[barcode].price).toLocaleString()}</div>`
+                                : ''}
+                            <div class="price-input-row">
+                                <input type="number" id="priceInput" placeholder="価格を入力（円）"
+                                       value="${priceData[barcode] ? priceData[barcode].price : ''}"
+                                       onkeydown="if(event.key==='Enter') savePrice('${barcode}')">
+                                <button class="btn-price btn-price-save" onclick="savePrice('${barcode}')">保存</button>
+                                ${priceData[barcode] ? `<button class="btn-price btn-price-delete" onclick="deletePrice('${barcode}')">削除</button>` : ''}
+                            </div>
+                        </div>
+
                         ${(energy || fat || carbs || protein) ? `
                             <div class="nutrition-section">
                                 <h4 class="nutrition-title">🥗 栄養成分（100gあたり）</h4>
@@ -816,39 +966,106 @@
             renderHistory();
         }
 
-        // 履歴を表示
+        // 履歴を表示（renderPriceListに統合）
         function renderHistory() {
+            renderPriceList();
+        }
+
+        // 価格を保存
+        function savePrice(barcode) {
+            const input = document.getElementById('priceInput');
+            const price = parseInt(input.value);
+            if (isNaN(price) || price < 0) return;
+
+            // 最新の履歴から商品名・画像を取得
+            const historyItem = scanHistory.find(h => h.barcode === barcode);
+            priceData[barcode] = {
+                price,
+                name: historyItem ? historyItem.name : barcode,
+                image: historyItem ? historyItem.image : '',
+                updatedAt: new Date().toISOString()
+            };
+            localStorage.setItem('priceData', JSON.stringify(priceData));
+            renderPriceList();
+
+            // 商品カードを再描画して価格を反映
+            fetchProductInfo(barcode);
+        }
+
+        // 価格を削除
+        function deletePrice(barcode) {
+            delete priceData[barcode];
+            localStorage.setItem('priceData', JSON.stringify(priceData));
+            renderPriceList();
+            fetchProductInfo(barcode);
+        }
+
+        // 価格一覧を表示
+        function renderPriceList() {
             const area = document.getElementById('historyArea');
-            if (!scanHistory.length) {
+            const entries = Object.entries(priceData).sort((a, b) =>
+                new Date(b[1].updatedAt) - new Date(a[1].updatedAt)
+            );
+
+            if (!entries.length && !scanHistory.length) {
                 area.innerHTML = '';
                 return;
             }
 
-            let html = `
-                <section class="history-section">
-                    <h3 class="history-title">🕐 スキャン履歴</h3>
-                    <div class="history-list">
-            `;
+            let html = '';
 
-            for (const item of scanHistory) {
-                const time = new Date(item.time);
-                const timeStr = `${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}`;
-
+            // 価格一覧
+            if (entries.length) {
                 html += `
-                    <div class="history-item" onclick="fetchProductInfo('${item.barcode}')">
-                        ${item.image
-                            ? `<img class="history-thumb" src="${item.image}" alt="" onerror="this.outerHTML='<div class=\\'history-thumb-placeholder\\'>📦</div>'">`
-                            : '<div class="history-thumb-placeholder">📦</div>'}
-                        <div class="history-info">
-                            <div class="history-name">${escapeHtml(item.name)}</div>
-                            <div class="history-barcode">${item.barcode}</div>
-                        </div>
-                        <div class="history-time">${timeStr}</div>
-                    </div>
+                    <section class="price-list-section">
+                        <h3 class="price-list-title">💰 価格設定済み商品</h3>
+                        <div class="price-list">
                 `;
+                for (const [barcode, data] of entries) {
+                    html += `
+                        <div class="price-list-item" onclick="fetchProductInfo('${barcode}')">
+                            ${data.image
+                                ? `<img class="history-thumb" src="${data.image}" alt="" onerror="this.outerHTML='<div class=\\'history-thumb-placeholder\\'>📦</div>'">`
+                                : '<div class="history-thumb-placeholder">📦</div>'}
+                            <div class="history-info">
+                                <div class="history-name">${escapeHtml(data.name)}</div>
+                                <div class="history-barcode">${barcode}</div>
+                            </div>
+                            <div class="price-tag">¥${Number(data.price).toLocaleString()}</div>
+                        </div>
+                    `;
+                }
+                html += '</div></section>';
             }
 
-            html += '</div></section>';
+            // スキャン履歴
+            if (scanHistory.length) {
+                html += `
+                    <section class="history-section">
+                        <h3 class="history-title">🕐 スキャン履歴</h3>
+                        <div class="history-list">
+                `;
+                for (const item of scanHistory) {
+                    const time = new Date(item.time);
+                    const timeStr = `${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}`;
+                    const savedPrice = priceData[item.barcode];
+                    html += `
+                        <div class="history-item" onclick="fetchProductInfo('${item.barcode}')">
+                            ${item.image
+                                ? `<img class="history-thumb" src="${item.image}" alt="" onerror="this.outerHTML='<div class=\\'history-thumb-placeholder\\'>📦</div>'">`
+                                : '<div class="history-thumb-placeholder">📦</div>'}
+                            <div class="history-info">
+                                <div class="history-name">${escapeHtml(item.name)}</div>
+                                <div class="history-barcode">${item.barcode}</div>
+                            </div>
+                            ${savedPrice ? `<div class="price-tag">¥${Number(savedPrice.price).toLocaleString()}</div>` : ''}
+                            <div class="history-time">${timeStr}</div>
+                        </div>
+                    `;
+                }
+                html += '</div></section>';
+            }
+
             area.innerHTML = html;
         }
 
