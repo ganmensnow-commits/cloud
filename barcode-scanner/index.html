@@ -724,6 +724,9 @@
 
         // バーコード処理のメイン
         function handleBarcode(barcode) {
+            barcode = barcode.trim();
+            // localStorageから最新データを再読込
+            products = JSON.parse(localStorage.getItem('products') || '{}');
             // 既に登録済みならその商品を表示
             if (products[barcode]) {
                 showProductCard(barcode);
