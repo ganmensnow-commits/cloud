@@ -658,14 +658,12 @@
         async function startScanner() {
             try {
                 html5QrCode = new Html5Qrcode("reader");
-                // 画面幅に合わせてスキャン領域を大きく取る
-                const scanWidth = Math.min(window.innerWidth - 60, 350);
                 await html5QrCode.start(
                     { facingMode: "environment" },
                     {
                         fps: 20,
-                        qrbox: { width: scanWidth, height: 180 },
-                        aspectRatio: 1.2,
+                        qrbox: { width: 200, height: 100 },
+                        aspectRatio: 1.5,
                         useBarCodeDetectorIfSupported: true,
                         formatsToSupport: [
                             Html5QrcodeSupportedFormats.EAN_13,
