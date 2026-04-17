@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>当たるも八卦当たらぬも八卦 | 今日の血液型占い</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* === リセット === */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* === 9:16 TikTok縦型レイアウト === */
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      max-width: 450px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #0a0014 0%, #1a0033 30%, #0d0020 60%, #05000f 100%);
+    }
+
+    /* === 星空背景 === */
+    .stars-bg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.1; transform: scale(0.5); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* === 浮遊パーティクル === */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatUp var(--dur) ease-in infinite;
+      opacity: 0;
+    }
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translateY(0) scale(0); }
+      20% { opacity: 0.8; transform: translateY(-100px) scale(1); }
+      100% { opacity: 0; transform: translateY(-600px) scale(0.3); }
+    }
+
+    /* === 全スライド共通 === */
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      z-index: 10;
+      transition: opacity 0.8s ease;
+      padding: 40px 24px;
+    }
+    .slide.active { opacity: 1; }
+
+    /* === タイトルスライド === */
+    .title-slide .date {
+      font-size: 15px;
+      color: rgba(200, 170, 255, 0.8);
+      letter-spacing: 0.15em;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 0.3s ease forwards;
+    }
+    .title-slide .main-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      line-height: 1.5;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 40px rgba(140, 80, 255, 0.6), 0 0 80px rgba(140, 80, 255, 0.3);
+      opacity: 0;
+      animation: fadeSlideUp 1s 0.6s ease forwards;
+    }
+    .title-slide .subtitle {
+      font-size: 20px;
+      font-weight: 700;
+      color: #c8aaff;
+      margin-top: 20px;
+      letter-spacing: 0.1em;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 1.0s ease forwards;
+    }
+    .title-slide .blood-types-preview {
+      display: flex;
+      gap: 20px;
+      margin-top: 40px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 1.4s ease forwards;
+    }
+    .title-slide .bt-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .bt-icon.a { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+    .bt-icon.b { background: linear-gradient(135deg, #54a0ff, #2e86de); }
+    .bt-icon.o { background: linear-gradient(135deg, #5cd85c, #26a65b); }
+    .bt-icon.ab { background: linear-gradient(135deg, #f9ca24, #f39c12); }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+      50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
+    }
+
+    .crystal-ball {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(200, 170, 255, 0.4), rgba(100, 50, 200, 0.2), transparent 70%);
+      border: 2px solid rgba(200, 170, 255, 0.3);
+      margin-bottom: 30px;
+      position: relative;
+      opacity: 0;
+      animation: fadeSlideUp 1s 0.1s ease forwards, crystalGlow 3s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+    }
+    @keyframes crystalGlow {
+      0%, 100% { box-shadow: 0 0 30px rgba(140, 80, 255, 0.3), inset 0 0 30px rgba(140, 80, 255, 0.1); }
+      50% { box-shadow: 0 0 60px rgba(140, 80, 255, 0.6), inset 0 0 50px rgba(140, 80, 255, 0.2); }
+    }
+
+    /* === ランキングスライド === */
+    .ranking-slide .rank-label {
+      font-size: 16px;
+      color: rgba(200, 170, 255, 0.7);
+      letter-spacing: 0.2em;
+      margin-bottom: 4px;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 0.2s ease forwards;
+    }
+    .ranking-slide .rank-number {
+      font-size: 80px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #f9ca24, #f39c12, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      opacity: 0;
+      animation: scaleIn 0.6s 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .ranking-slide .rank-number.n1 {
+      font-size: 100px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00, #ff8c00);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .ranking-slide .blood-badge {
+      margin-top: 10px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      opacity: 0;
+      animation: scaleIn 0.6s 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .ranking-slide .blood-name {
+      font-size: 36px;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 8px;
+      letter-spacing: 0.05em;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 0.9s ease forwards;
+    }
+    .ranking-slide .fortune-message {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.9);
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.9;
+      max-width: 330px;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 1.1s ease forwards;
+    }
+
+    /* === 星評価 === */
+    .stars-rating {
+      margin-top: 12px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 1.3s ease forwards;
+    }
+    .stars-rating .star-icon {
+      font-size: 22px;
+      animation: starPop 0.3s ease forwards;
+      opacity: 0;
+    }
+    .stars-rating .star-icon:nth-child(1) { animation-delay: 1.4s; }
+    .stars-rating .star-icon:nth-child(2) { animation-delay: 1.5s; }
+    .stars-rating .star-icon:nth-child(3) { animation-delay: 1.55s; }
+    .stars-rating .star-icon:nth-child(4) { animation-delay: 1.6s; }
+    .stars-rating .star-icon:nth-child(5) { animation-delay: 1.65s; }
+    @keyframes starPop {
+      0% { opacity: 0; transform: scale(0) rotate(-30deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* === ラッキー情報 === */
+    .lucky-info {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 1.5s ease forwards;
+    }
+    .lucky-tag {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+    .lucky-tag .tag-label {
+      font-size: 9px;
+      color: rgba(200, 170, 255, 0.6);
+      letter-spacing: 0.12em;
+      margin-bottom: 2px;
+    }
+    .lucky-tag .tag-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f9ca24;
+    }
+
+    /* === アドバイス === */
+    .advice-text {
+      font-size: 12px;
+      color: rgba(200, 180, 255, 0.6);
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.7;
+      max-width: 300px;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 1.8s ease forwards;
+      font-style: italic;
+    }
+
+    /* === エンディング === */
+    .ending-slide .end-message {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 0.3s ease forwards;
+    }
+    .ending-slide .follow-text {
+      font-size: 15px;
+      color: rgba(200, 170, 255, 0.8);
+      margin-top: 30px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 0.8s ease forwards;
+      letter-spacing: 0.1em;
+    }
+    .ending-slide .hashtag {
+      font-size: 14px;
+      color: rgba(150, 120, 220, 0.7);
+      margin-top: 16px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 1.2s ease forwards;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* === 共通アニメーション === */
+    @keyframes fadeSlideUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      0% { opacity: 0; transform: scale(0); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* === プログレスバー === */
+    .progress-bar {
+      position: absolute;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #8c50ff, #c8aaff, #f9ca24);
+      z-index: 100;
+      transition: width 0.3s linear;
+    }
+
+    /* === スライドインジケーター === */
+    .slide-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+    .slide-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    .slide-dot.active {
+      background: #c8aaff;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* === 1位専用エフェクト === */
+    .rank1-effects {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .confetti {
+      position: absolute;
+      width: 8px; height: 8px;
+      opacity: 0;
+      animation: confettiFall var(--dur) var(--delay) ease-in forwards;
+    }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(800px) rotate(720deg); }
+    }
+
+    /* === タップ領域 === */
+    .tap-area {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      z-index: 50;
+      cursor: pointer;
+    }
+    .tap-area.left { left: 0; }
+    .tap-area.right { right: 0; }
+
+    /* === 録画ボタン === */
+    .record-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 200;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(135deg, #ff4757, #ff6b81);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .record-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+    }
+    .record-btn.recording {
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      animation: recPulse 1s ease-in-out infinite;
+    }
+    .record-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #fff;
+    }
+    .record-btn.recording .record-dot {
+      background: #ff0000;
+      animation: recDotBlink 0.8s ease-in-out infinite;
+    }
+    @keyframes recPulse {
+      0%, 100% { box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4); }
+      50% { box-shadow: 0 4px 25px rgba(192, 57, 43, 0.8); }
+    }
+    @keyframes recDotBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* 録画中はボタンを非表示にするクラス */
+    .hide-for-record {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
+    <span class="record-dot"></span>
+    <span id="recordLabel">MP4録画</span>
+  </button>
+
+  <div class="container" id="app">
+    <div class="stars-bg" id="starsField"></div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- タップで前後移動 -->
+    <div class="tap-area left" id="tapLeft"></div>
+    <div class="tap-area right" id="tapRight"></div>
+
+    <!-- スライドはJSで生成 -->
+    <div class="slide-indicator" id="indicator"></div>
+  </div>
+
+  <!-- 録画用の非表示キャンバス -->
+  <canvas id="recordCanvas" style="display:none;"></canvas>
+
+  <script>
+    // === 日付ベースの疑似乱数生成 ===
+    function seededRandom(seed) {
+      let s = seed;
+      return function() {
+        s = (s * 16807 + 0) % 2147483647;
+        return (s - 1) / 2147483646;
+      };
+    }
+
+    // === 2026年4月1日（水）固定 ===
+    const year = 2026;
+    const month = 4;
+    const day = 1;
+    const dateStr = `${year}年${month}月${day}日`;
+    const dayOfWeek = '水';
+    const dateSeed = year * 10000 + month * 100 + day;
+    const rng = seededRandom(dateSeed);
+
+    // === 血液型データ ===
+    const bloodTypes = [
+      { type: 'A型', short: 'A', colorClass: 'a', gradient: 'linear-gradient(135deg, #ff6b6b, #ee5a24)' },
+      { type: 'B型', short: 'B', colorClass: 'b', gradient: 'linear-gradient(135deg, #54a0ff, #2e86de)' },
+      { type: 'O型', short: 'O', colorClass: 'o', gradient: 'linear-gradient(135deg, #5cd85c, #26a65b)' },
+      { type: 'AB型', short: 'AB', colorClass: 'ab', gradient: 'linear-gradient(135deg, #f9ca24, #f39c12)' },
+    ];
+
+    // === 運勢メッセージ（長めに充実） ===
+    const messages = {
+      1: [
+        '最高の運気が巡ってきています！\n今日は何をやっても上手くいく日。\n新しいことに挑戦すると\n思わぬ幸運が舞い込みそう。\n自信を持って一歩を踏み出して！',
+        '絶好調の一日！直感が冴えわたり\n大きなチャンスを掴める暗示。\n迷ったら心の声に従って。\nあなたの決断は間違いなし！\n周りからの評価もアップ↑',
+        '大吉！運命の歯車が\nあなたに味方しています。\n思い切った行動が\n大きな成果に繋がる日。\n恋愛運も仕事運も絶好調！',
+        'ツイてる一日の始まり！\nあなたの魅力が最大限に輝き\n周囲の人を惹きつけます。\n積極的な姿勢が幸運を呼び\n素敵な出会いの予感も✨',
+        '運気最高潮！星々が\nあなたを祝福しています。\n長年の努力が実を結ぶ暗示。\n人前に出ることで\nさらに運気がアップします！',
+      ],
+      2: [
+        '好調な運気が流れています！\n周りの人への感謝を忘れずに\n過ごすことで運気がさらに上昇。\nチームワークが鍵となる日。\n笑顔でいれば良いことが起きる！',
+        'いい流れが来ています！\n積極的にチャレンジすると吉。\nコミュニケーションを大切にすると\n思わぬサポートが得られそう。\n午後からさらに運気アップ↑',
+        '穏やかな幸運の日。\n小さな親切が巡り巡って\n大きな喜びとなって返ってきます。\n身近な人との会話の中に\nヒントが隠されているかも？',
+        '運気上昇中！\n人との繋がりが幸運を運びます。\n普段話さない人に声をかけると\n新しい世界が広がりそう。\nSNSでの発信も吉◎',
+        '良い出会いの予感！\n笑顔を大切に過ごすことで\n自然と良い縁が引き寄せられます。\n美味しいものを食べると\nさらに運気チャージ！',
+      ],
+      3: [
+        'まずまずの運勢です。\n焦らず自分のペースを大切に。\n地道な努力が後に実を結びます。\n今日は準備と計画の日と思って\n丁寧に過ごしましょう。',
+        '平穏な一日になりそう。\nリラックスして過ごすことで\n心のバランスが整います。\n読書や散歩など\n静かな時間が開運のカギ。',
+        '普通の中にも小さな幸せが\n見つかる日。見逃さないで！\n身の回りの整理整頓をすると\n気持ちがスッキリして\n明日への活力が湧いてきます。',
+        '落ち着いて行動すれば\n良い結果がついてきます。\n急がば回れの精神で\n一つひとつ丁寧にこなして。\n夕方以降に小さなラッキーあり！',
+        '穏やかな運気の日。\n無理に動かず流れに身を任せて。\n自分磨きの時間に充てると\n内面からの輝きが増して\n明日以降の運気アップに繋がります。',
+      ],
+      4: [
+        '少し注意が必要な日。\n慎重に行動することが大切です。\nでも心配しすぎないで！\n丁寧に過ごせば問題なし。\n深呼吸して心を落ち着けて。',
+        '油断は禁物の一日。\nでも前向きな気持ちがあれば\n必ず乗り越えられます！\n困った時は周りに頼ることも大切。\n一人で抱え込まないで。',
+        '試練は成長のチャンス！\n今日の経験が明日の\nあなたを強くします。\n小さな成功を積み重ねて\n自信を取り戻しましょう。',
+        '今日はゆっくり充電の日。\n無理せず体を休めることが\n最善の選択です。\n好きな音楽を聴いたり\n温かい飲み物でほっと一息。',
+        '忍耐の日。でもこの時期を\n乗り越えれば明るい未来が\n待っています！\n今は力を蓄える時期。\n焦らず準備を整えましょう。',
+      ],
+    };
+
+    // === アドバイス ===
+    const advices = {
+      1: [
+        '✦ 午前中に重要な決断をすると特に吉',
+        '✦ 赤い服を身につけると運気がさらにアップ',
+        '✦ 人に優しくすることで幸運が倍増します',
+        '✦ 新しい場所に行くと素敵な発見がありそう',
+        '✦ 感謝の気持ちを言葉にすると好循環が生まれます',
+      ],
+      2: [
+        '✦ 午後のティータイムがリフレッシュのカギ',
+        '✦ 友人からの誘いには積極的に乗ってみて',
+        '✦ 小さな目標を立てて達成感を味わって',
+        '✦ 花を飾ると気分が上がって運気もアップ',
+        '✦ いつもと違う道を通ると新しい発見が',
+      ],
+      3: [
+        '✦ 早寝早起きが明日の運気アップに繋がります',
+        '✦ 部屋の換気をして気の流れを良くして',
+        '✦ 日記を書くと心が整理されます',
+        '✦ 懐かしい曲を聴くと元気が出てきそう',
+        '✦ 温かいスープで体の中から整えましょう',
+      ],
+      4: [
+        '✦ 無理をしないことが一番の開運法',
+        '✦ 水回りの掃除で厄を落として',
+        '✦ 早めに休んで明日に備えましょう',
+        '✦ お気に入りの場所で深呼吸してリセット',
+        '✦ 塩分控えめの食事で体をいたわって',
+      ],
+    };
+
+    // === ラッキーアイテム ===
+    const luckyItems = [
+      'チョコレート🍫', 'コーヒー☕', '青いペン🖊️', '花束💐', '手紙✉️',
+      'イヤホン🎧', '本📚', 'アイスクリーム🍦', '傘☂️', 'カメラ📷',
+      '紅茶🫖', 'スニーカー👟', '鏡🪞', '腕時計⌚', 'ハンカチ🤧',
+      'リップクリーム💄', 'お守り🧿', '緑茶🍵', 'ぬいぐるみ🧸', 'キャンドル🕯️',
+      'パスタ🍝', 'クッキー🍪', 'マフラー🧣', '手帳📒', 'サングラス🕶️',
+      'カレー🍛', 'ケーキ🍰', '帽子🧢', '石鹸🧼', 'バナナ🍌',
+    ];
+
+    const luckyColors = [
+      '赤 🔴', '青 🔵', '緑 🟢', '黄色 🟡', 'ピンク 💗',
+      'オレンジ 🟠', '紫 🟣', '白 ⚪', '水色 💎', 'ゴールド ✨',
+    ];
+
+    const luckySpots = [
+      'カフェ', '公園', '本屋', '駅前', '河川敷',
+      '映画館', '神社', '商店街', '展望台', '図書館',
+    ];
+
+    // === シャッフル ===
+    function shuffleArray(arr, random) {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    const ranking = shuffleArray(bloodTypes, rng);
+    const starCounts = [5, 4, 3, 2];
+
+    // 各順位にデータ割り当て
+    ranking.forEach((bt, i) => {
+      const rank = i + 1;
+      const msgs = messages[rank];
+      const advs = advices[rank];
+      bt.rank = rank;
+      bt.message = msgs[Math.floor(rng() * msgs.length)];
+      bt.advice = advs[Math.floor(rng() * advs.length)];
+      bt.stars = starCounts[i];
+      bt.luckyItem = luckyItems[Math.floor(rng() * luckyItems.length)];
+      bt.luckyColor = luckyColors[Math.floor(rng() * luckyColors.length)];
+      bt.luckySpot = luckySpots[Math.floor(rng() * luckySpots.length)];
+    });
+
+    // === 星空の生成 ===
+    const starsField = document.getElementById('starsField');
+    for (let i = 0; i < 80; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.setProperty('--dur', (1.5 + Math.random() * 2) + 's');
+      star.style.animationDelay = Math.random() * 3 + 's';
+      if (Math.random() > 0.7) {
+        star.style.width = '3px';
+        star.style.height = '3px';
+        star.style.background = '#c8aaff';
+      }
+      starsField.appendChild(star);
+    }
+
+    // === パーティクル生成 ===
+    function createParticles() {
+      const app = document.getElementById('app');
+      for (let i = 0; i < 15; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = 3 + Math.random() * 5;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.bottom = '-10px';
+        p.style.background = `hsl(${260 + Math.random() * 40}, 70%, ${60 + Math.random() * 30}%)`;
+        p.style.setProperty('--dur', (4 + Math.random() * 4) + 's');
+        p.style.animationDelay = Math.random() * 5 + 's';
+        app.appendChild(p);
+      }
+    }
+    createParticles();
+
+    // === 読み上げテキストデータ（スライドごと） ===
+    const slideSpeeches = [];
+
+    // === スライド生成 ===
+    const app = document.getElementById('app');
+    const slides = [];
+
+    // タイトルスライド
+    const titleSlide = document.createElement('div');
+    titleSlide.className = 'slide title-slide active';
+    titleSlide.innerHTML = `
+      <div class="crystal-ball">🔮</div>
+      <div class="date">${dateStr}（${dayOfWeek}）</div>
+      <div class="main-title">当たるも八卦<br>当たらぬも八卦</div>
+      <div class="subtitle">今日の血液型占い</div>
+      <div class="blood-types-preview">
+        <div class="bt-icon a">A</div>
+        <div class="bt-icon b">B</div>
+        <div class="bt-icon o">O</div>
+        <div class="bt-icon ab">AB</div>
+      </div>
+    `;
+    app.appendChild(titleSlide);
+    slides.push(titleSlide);
+    slideSpeeches.push(`${month}月${day}日、${dayOfWeek}曜日。当たるも八卦、当たらぬも八卦。今日の血液型占いです。`);
+
+    // 4位→1位の順で表示
+    const displayOrder = [...ranking].reverse();
+
+    displayOrder.forEach((bt) => {
+      const slide = document.createElement('div');
+      slide.className = 'slide ranking-slide';
+
+      const isFirst = bt.rank === 1;
+      let confettiHTML = '';
+      if (isFirst) {
+        const colors = ['#ffd700', '#ff6b6b', '#54a0ff', '#5cd85c', '#f9ca24', '#c8aaff', '#ff9ff3'];
+        for (let i = 0; i < 40; i++) {
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          const left = Math.random() * 100;
+          const dur = 2 + Math.random() * 2;
+          const delay = Math.random() * 1.5;
+          const size = 5 + Math.random() * 8;
+          const borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+          confettiHTML += `<div class="confetti" style="left:${left}%;width:${size}px;height:${size}px;background:${color};border-radius:${borderRadius};--dur:${dur}s;--delay:${delay}s"></div>`;
+        }
+      }
+
+      slide.innerHTML = `
+        ${isFirst ? `<div class="rank1-effects">${confettiHTML}</div>` : ''}
+        <div class="rank-label">▼ 第${bt.rank}位 ▼</div>
+        <div class="rank-number ${isFirst ? 'n1' : ''}">${bt.rank}</div>
+        <div class="blood-badge" style="background:${bt.gradient}">${bt.short}</div>
+        <div class="blood-name">${bt.type}</div>
+        <div class="fortune-message">${bt.message.replace(/\n/g, '<br>')}</div>
+        <div class="stars-rating">
+          ${'<span class="star-icon">⭐</span>'.repeat(bt.stars)}${'<span class="star-icon" style="opacity:0.2;animation:none;">☆</span>'.repeat(5 - bt.stars)}
+        </div>
+        <div class="lucky-info">
+          <div class="lucky-tag">
+            <div class="tag-label">ITEM</div>
+            <div class="tag-value">${bt.luckyItem}</div>
+          </div>
+          <div class="lucky-tag">
+            <div class="tag-label">COLOR</div>
+            <div class="tag-value">${bt.luckyColor}</div>
+          </div>
+          <div class="lucky-tag">
+            <div class="tag-label">SPOT</div>
+            <div class="tag-value">${bt.luckySpot}</div>
+          </div>
+        </div>
+        <div class="advice-text">${bt.advice}</div>
+      `;
+      app.appendChild(slide);
+      slides.push(slide);
+
+      // 読み上げテキスト生成（絵文字・記号を除去）
+      const cleanMsg = bt.message.replace(/\n/g, '。').replace(/[✨↑◎]/g, '');
+      const cleanItem = bt.luckyItem.replace(/[^\u3000-\u9FFF\u30A0-\u30FF\u3040-\u309Fー\w\s]/g, '');
+      const cleanColor = bt.luckyColor.replace(/[^\u3000-\u9FFF\u30A0-\u30FF\u3040-\u309Fー\w\s]/g, '').trim();
+      const cleanAdvice = bt.advice.replace(/✦/g, '').trim();
+      slideSpeeches.push(
+        `第${bt.rank}位、${bt.type}。${cleanMsg}。` +
+        `ラッキーアイテムは${cleanItem}。ラッキーカラーは${cleanColor}。ラッキースポットは${bt.luckySpot}。` +
+        `${cleanAdvice}。`
+      );
+    });
+
+    // エンディングスライド
+    const endSlide = document.createElement('div');
+    endSlide.className = 'slide ending-slide';
+    endSlide.innerHTML = `
+      <div class="crystal-ball" style="opacity:0;animation:fadeSlideUp 1s 0.1s ease forwards, crystalGlow 3s ease-in-out infinite;font-size:50px;">🔮</div>
+      <div class="end-message">
+        今日も素敵な一日に<br>なりますように✨
+      </div>
+      <div class="follow-text">
+        フォローして毎日チェック！
+      </div>
+      <div class="hashtag">
+        #血液型占い #今日の運勢<br>
+        #当たるも八卦当たらぬも八卦<br>
+        #占い #TikTok占い
+      </div>
+    `;
+    app.appendChild(endSlide);
+    slides.push(endSlide);
+    slideSpeeches.push('今日も素敵な一日になりますように。フォローして毎日チェックしてくださいね。');
+
+    // === スライドインジケーター ===
+    const indicator = document.getElementById('indicator');
+    slides.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+      indicator.appendChild(dot);
+    });
+    const dots = indicator.querySelectorAll('.slide-dot');
+
+    // =============================================
+    // === 音声読み上げ（Web Speech API） ===
+    // =============================================
+    let isSpeaking = false;
+    let currentUtterance = null;
+    let speechEnabled = true; // 読み上げ有効フラグ
+    let bgmMasterGainNode = null; // BGMのmasterGainへの参照
+
+    // 日本語音声を取得
+    function getJapaneseVoice() {
+      const voices = speechSynthesis.getVoices();
+      // 優先順: macOS日本語 > その他日本語
+      const preferred = voices.find(v => v.lang === 'ja-JP' && v.name.includes('Kyoko'));
+      if (preferred) return preferred;
+      const jp = voices.find(v => v.lang === 'ja-JP' || v.lang.startsWith('ja'));
+      return jp || null;
+    }
+
+    // 読み上げ実行（Promiseで完了を通知）
+    function speakText(text) {
+      return new Promise((resolve) => {
+        if (!speechEnabled || !text) { resolve(); return; }
+
+        // 前の読み上げがあれば停止
+        speechSynthesis.cancel();
+
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'ja-JP';
+        utter.rate = 0.95;  // 少しゆっくり
+        utter.pitch = 1.1;  // やや高め（占い師っぽく）
+        utter.volume = 1.0;
+
+        const voice = getJapaneseVoice();
+        if (voice) utter.voice = voice;
+
+        // BGMの音量を下げる
+        if (bgmMasterGainNode && audioCtx) {
+          bgmMasterGainNode.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.3);
+        }
+
+        isSpeaking = true;
+        currentUtterance = utter;
+
+        utter.onend = () => {
+          isSpeaking = false;
+          currentUtterance = null;
+          // BGMの音量を戻す
+          if (bgmMasterGainNode && audioCtx) {
+            bgmMasterGainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.5);
+          }
+          resolve();
+        };
+        utter.onerror = () => {
+          isSpeaking = false;
+          currentUtterance = null;
+          if (bgmMasterGainNode && audioCtx) {
+            bgmMasterGainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.3);
+          }
+          resolve();
+        };
+
+        // 少し間を置いてから読み上げ開始（アニメーションを見せるため）
+        setTimeout(() => {
+          speechSynthesis.speak(utter);
+        }, 800);
+      });
+    }
+
+    // 読み上げ停止
+    function stopSpeech() {
+      speechSynthesis.cancel();
+      isSpeaking = false;
+      currentUtterance = null;
+    }
+
+    // 音声リスト読み込み（一部ブラウザで非同期）
+    speechSynthesis.onvoiceschanged = () => { getJapaneseVoice(); };
+
+    // === スライド制御 ===
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+    const MIN_SLIDE_DURATION = 3000; // 読み上げ後の最低表示時間
+    let autoTimer = null;
+    let isTransitioning = false; // スライド移動中フラグ
+
+    function goToSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      if (isTransitioning) return;
+
+      // 前の読み上げを停止
+      stopSpeech();
+
+      slides[currentSlide].classList.remove('active');
+      dots[currentSlide].classList.remove('active');
+
+      currentSlide = index;
+
+      // アニメーションリセット
+      const slide = slides[currentSlide];
+      const parent = slide.parentNode;
+      const clone = slide.cloneNode(true);
+      clone.classList.add('active');
+      parent.replaceChild(clone, slide);
+      slides[currentSlide] = clone;
+
+      dots[currentSlide].classList.add('active');
+      updateProgress();
+
+      // 自動タイマーをクリア
+      clearTimeout(autoTimer);
+
+      // 読み上げ開始 → 完了後に次スライドへ
+      isTransitioning = true;
+      speakText(slideSpeeches[currentSlide]).then(() => {
+        isTransitioning = false;
+        if (currentSlide < totalSlides - 1) {
+          // 読み上げ完了後、少し間を置いて次のスライドへ
+          autoTimer = setTimeout(nextSlide, MIN_SLIDE_DURATION);
+        } else {
+          // 最後のスライドで録画停止
+          if (isRecording) {
+            setTimeout(() => stopRecording(), 3000);
+          }
+        }
+      });
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        goToSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        goToSlide(currentSlide - 1);
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentSlide + 1) / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    // タップ操作
+    document.getElementById('tapRight').addEventListener('click', nextSlide);
+    document.getElementById('tapLeft').addEventListener('click', prevSlide);
+
+    // スワイプ操作
+    let touchStartX = 0;
+    app.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+    app.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) nextSlide();
+        else prevSlide();
+      }
+    });
+
+    // 自動再生開始（最初のスライドの読み上げから）
+    updateProgress();
+    // 最初のクリックで読み上げ開始（ブラウザの音声ポリシー対応）
+    document.addEventListener('click', function initSpeech() {
+      // 最初のスライドの読み上げ → 完了後に自動遷移
+      speakText(slideSpeeches[0]).then(() => {
+        autoTimer = setTimeout(nextSlide, MIN_SLIDE_DURATION);
+      });
+      document.removeEventListener('click', initSpeech);
+    }, { once: true });
+
+    // =============================================
+    // === BGM（Web Audio API で生成） ===
+    // =============================================
+    let audioCtx = null;
+    let bgmPlaying = false;
+    let bgmNodes = [];
+
+    function startBGM() {
+      if (bgmPlaying) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      bgmPlaying = true;
+
+      // メインボリューム
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.15;
+      masterGain.connect(audioCtx.destination);
+      bgmNodes.push(masterGain);
+      bgmMasterGainNode = masterGain; // 読み上げ時の音量調整用
+
+      // 神秘的なパッド音（和音）
+      const chords = [
+        [261.63, 329.63, 392.00], // C major
+        [293.66, 369.99, 440.00], // D major
+        [246.94, 311.13, 369.99], // B minor
+        [220.00, 277.18, 329.63], // A minor
+      ];
+
+      let chordIndex = 0;
+
+      function playChord() {
+        if (!bgmPlaying) return;
+        const chord = chords[chordIndex % chords.length];
+        chordIndex++;
+
+        chord.forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+
+          // フェードイン・フェードアウト
+          gain.gain.setValueAtTime(0, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 1);
+          gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 4.5);
+
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(audioCtx.currentTime);
+          osc.stop(audioCtx.currentTime + 5);
+          bgmNodes.push(osc, gain);
+        });
+
+        // 高音のキラキラ音
+        const sparkle = audioCtx.createOscillator();
+        const sparkleGain = audioCtx.createGain();
+        sparkle.type = 'sine';
+        sparkle.frequency.value = chord[2] * 2;
+        sparkleGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        sparkleGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.5);
+        sparkleGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
+        sparkle.connect(sparkleGain);
+        sparkleGain.connect(masterGain);
+        sparkle.start(audioCtx.currentTime);
+        sparkle.stop(audioCtx.currentTime + 3.5);
+        bgmNodes.push(sparkle, sparkleGain);
+
+        setTimeout(playChord, 5000);
+      }
+
+      // ベース音（低音の持続音）
+      const bassOsc = audioCtx.createOscillator();
+      const bassGain = audioCtx.createGain();
+      bassOsc.type = 'sine';
+      bassOsc.frequency.value = 65.41; // C2
+      bassGain.gain.value = 0.12;
+      bassOsc.connect(bassGain);
+      bassGain.connect(masterGain);
+      bassOsc.start();
+      bgmNodes.push(bassOsc, bassGain);
+
+      // ベルトーン（ランダムなタイミング）
+      function playBell() {
+        if (!bgmPlaying) return;
+        const bellFreqs = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        const freq = bellFreqs[Math.floor(Math.random() * bellFreqs.length)];
+
+        const bell = audioCtx.createOscillator();
+        const bellGain = audioCtx.createGain();
+        bell.type = 'sine';
+        bell.frequency.value = freq;
+        bellGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        bellGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+        bell.connect(bellGain);
+        bellGain.connect(masterGain);
+        bell.start(audioCtx.currentTime);
+        bell.stop(audioCtx.currentTime + 2.5);
+        bgmNodes.push(bell, bellGain);
+
+        setTimeout(playBell, 2000 + Math.random() * 3000);
+      }
+
+      playChord();
+      setTimeout(playBell, 1000);
+    }
+
+    function stopBGM() {
+      bgmPlaying = false;
+      bgmNodes.forEach(node => {
+        try { node.stop && node.stop(); } catch(e) {}
+        try { node.disconnect && node.disconnect(); } catch(e) {}
+      });
+      bgmNodes = [];
+      if (audioCtx) {
+        audioCtx.close();
+        audioCtx = null;
+      }
+    }
+
+    // ユーザー操作で音楽開始（ブラウザのポリシー対応）
+    document.addEventListener('click', function initAudio() {
+      startBGM();
+      document.removeEventListener('click', initAudio);
+    }, { once: true });
+
+    // =============================================
+    // === 録画機能（html2canvas + MediaRecorder） ===
+    // =============================================
+    let isRecording = false;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let captureInterval = null;
+
+    async function toggleRecord() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        await startRecording();
+      }
+    }
+
+    async function startRecording() {
+      const btn = document.getElementById('recordBtn');
+      const label = document.getElementById('recordLabel');
+
+      // まず先頭に戻す
+      goToSlide(0);
+      clearInterval(autoTimer);
+
+      // BGMを開始/リスタート
+      stopBGM();
+
+      // 録画用AudioContext（MediaRecorderに接続）
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const audioDest = audioCtx.createMediaStreamDestination();
+
+      // メインボリューム（録画用はaudioDestに接続）
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.15;
+      masterGain.connect(audioDest);
+      masterGain.connect(audioCtx.destination); // スピーカーにも出力
+      bgmPlaying = true;
+      bgmNodes.push(masterGain);
+      bgmMasterGainNode = masterGain; // 読み上げ時の音量調整用
+
+      // BGM（録画用のAudioContextで再生）
+      const chords = [
+        [261.63, 329.63, 392.00],
+        [293.66, 369.99, 440.00],
+        [246.94, 311.13, 369.99],
+        [220.00, 277.18, 329.63],
+      ];
+      let chordIndex = 0;
+
+      function playChordRec() {
+        if (!bgmPlaying) return;
+        const chord = chords[chordIndex % chords.length];
+        chordIndex++;
+        chord.forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 1);
+          gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 4.5);
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(audioCtx.currentTime);
+          osc.stop(audioCtx.currentTime + 5);
+          bgmNodes.push(osc, gain);
+        });
+        const sparkle = audioCtx.createOscillator();
+        const sparkleGain = audioCtx.createGain();
+        sparkle.type = 'sine';
+        sparkle.frequency.value = chord[2] * 2;
+        sparkleGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        sparkleGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.5);
+        sparkleGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
+        sparkle.connect(sparkleGain);
+        sparkleGain.connect(masterGain);
+        sparkle.start(audioCtx.currentTime);
+        sparkle.stop(audioCtx.currentTime + 3.5);
+        bgmNodes.push(sparkle, sparkleGain);
+        setTimeout(playChordRec, 5000);
+      }
+
+      const bassOsc = audioCtx.createOscillator();
+      const bassGain = audioCtx.createGain();
+      bassOsc.type = 'sine';
+      bassOsc.frequency.value = 65.41;
+      bassGain.gain.value = 0.12;
+      bassOsc.connect(bassGain);
+      bassGain.connect(masterGain);
+      bassOsc.start();
+      bgmNodes.push(bassOsc, bassGain);
+
+      function playBellRec() {
+        if (!bgmPlaying) return;
+        const bellFreqs = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        const freq = bellFreqs[Math.floor(Math.random() * bellFreqs.length)];
+        const bell = audioCtx.createOscillator();
+        const bellGain = audioCtx.createGain();
+        bell.type = 'sine';
+        bell.frequency.value = freq;
+        bellGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        bellGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+        bell.connect(bellGain);
+        bellGain.connect(masterGain);
+        bell.start(audioCtx.currentTime);
+        bell.stop(audioCtx.currentTime + 2.5);
+        bgmNodes.push(bell, bellGain);
+        setTimeout(playBellRec, 2000 + Math.random() * 3000);
+      }
+
+      playChordRec();
+      setTimeout(playBellRec, 1000);
+
+      // Canvas準備
+      const canvas = document.getElementById('recordCanvas');
+      const container = document.getElementById('app');
+      canvas.width = container.offsetWidth;
+      canvas.height = container.offsetHeight;
+      const ctx = canvas.getContext('2d');
+
+      // 映像ストリーム
+      const videoStream = canvas.captureStream(30);
+
+      // 音声トラックを映像ストリームに追加
+      audioDest.stream.getAudioTracks().forEach(track => {
+        videoStream.addTrack(track);
+      });
+
+      // MediaRecorder
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus'
+        : 'video/webm';
+
+      mediaRecorder = new MediaRecorder(videoStream, {
+        mimeType: mimeType,
+        videoBitsPerSecond: 5000000,
+      });
+
+      recordedChunks = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `占い_${year}${String(month).padStart(2,'0')}${String(day).padStart(2,'0')}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      // ボタン非表示にしてから録画開始
+      btn.classList.add('hide-for-record');
+      isRecording = true;
+
+      mediaRecorder.start();
+
+      // html2canvasでフレームキャプチャ（15fps）
+      captureInterval = setInterval(async () => {
+        try {
+          const capturedCanvas = await html2canvas(container, {
+            backgroundColor: '#0a0014',
+            scale: 1,
+            logging: false,
+            useCORS: true,
+          });
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(capturedCanvas, 0, 0, canvas.width, canvas.height);
+        } catch(e) {}
+      }, 66); // 約15fps
+
+      // 少し待ってから読み上げ→自動遷移開始
+      setTimeout(() => {
+        speakText(slideSpeeches[0]).then(() => {
+          autoTimer = setTimeout(nextSlide, MIN_SLIDE_DURATION);
+        });
+      }, 500);
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      isTransitioning = false;
+      stopSpeech();
+      const btn = document.getElementById('recordBtn');
+      const label = document.getElementById('recordLabel');
+
+      if (captureInterval) {
+        clearInterval(captureInterval);
+        captureInterval = null;
+      }
+
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+
+      stopBGM();
+
+      // ボタンを再表示
+      btn.classList.remove('hide-for-record');
+      btn.classList.remove('recording');
+      label.textContent = 'MP4録画';
+
+      clearInterval(autoTimer);
+    }
+  </script>
+</body>
+</html>
