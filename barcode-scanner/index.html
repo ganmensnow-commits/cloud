@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>バーコードスキャナー</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -235,6 +236,8 @@
                 <div class="scan-hint">バーコードを枠に合わせてください</div>
             </div>
             <canvas id="canvas" style="display:none;"></canvas>
+            <!-- html5-qrcode フォールバック用 -->
+            <div id="qrReader" style="display:none; border-radius:12px; overflow:hidden; margin-bottom:1rem;"></div>
 
             <div class="btn-group">
                 <button id="startBtn" class="btn btn-primary" onclick="startCamera()">▶ スキャン開始</button>
@@ -290,6 +293,7 @@
         let scanning = false;
         let scanInterval = null;
         let detector = null;
+        let html5QrCode = null;
 
         // 安定スキャン用：同じ値が連続で読めたら確定
         const CONFIRM_COUNT = 3;
@@ -297,60 +301,108 @@
         let sameCount = 0;
 
         async function startCamera() {
-            // スキャン状態リセット
             lastCode = '';
             sameCount = 0;
             updateScanStatus('');
 
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-                });
-                const video = document.getElementById('video');
-                video.srcObject = stream;
-                await video.play();
+            // BarcodeDetector対応ブラウザ（主にChrome）
+            if ('BarcodeDetector' in window) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                    });
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                    await video.play();
 
-                document.getElementById('cameraWrap').style.display = 'block';
-                document.getElementById('startBtn').style.display = 'none';
-                document.getElementById('stopBtn').style.display = 'flex';
+                    document.getElementById('cameraWrap').style.display = 'block';
+                    document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('stopBtn').style.display = 'flex';
 
-                if ('BarcodeDetector' in window) {
                     detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
-                } else {
-                    detector = null;
+                    scanning = true;
+                    scanLoop();
+                } catch(e) {
+                    showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
                 }
-
-                scanning = true;
-                scanLoop();
-            } catch(e) {
-                showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
+            } else {
+                // フォールバック: html5-qrcode を使用（Safari等）
+                startHtml5QrCode();
             }
+        }
+
+        function startHtml5QrCode() {
+            document.getElementById('cameraWrap').style.display = 'none';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'flex';
+
+            // html5-qrcode 用の読み取りエリアを表示
+            const readerEl = document.getElementById('qrReader');
+            readerEl.style.display = 'block';
+
+            html5QrCode = new Html5Qrcode('qrReader');
+            html5QrCode.start(
+                { facingMode: 'environment' },
+                {
+                    fps: 15,
+                    qrbox: { width: 200, height: 100 },
+                    aspectRatio: 1.5,
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E,
+                        Html5QrcodeSupportedFormats.CODE_128
+                    ]
+                },
+                (code) => {
+                    // 安定スキャン: 同じ値が連続3回
+                    if (code === lastCode) {
+                        sameCount++;
+                    } else {
+                        lastCode = code;
+                        sameCount = 1;
+                    }
+                    if (sameCount >= CONFIRM_COUNT) {
+                        if (navigator.vibrate) navigator.vibrate(80);
+                        stopCamera();
+                        showConfirm(code);
+                    }
+                },
+                () => {}
+            ).catch(() => {
+                showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
+                stopCamera();
+            });
         }
 
         function stopCamera() {
             scanning = false;
             if (scanInterval) { clearTimeout(scanInterval); scanInterval = null; }
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            if (html5QrCode) {
+                html5QrCode.stop().catch(() => {}).finally(() => {
+                    html5QrCode.clear();
+                    html5QrCode = null;
+                    document.getElementById('qrReader').style.display = 'none';
+                    document.getElementById('qrReader').innerHTML = '';
+                });
+            }
             document.getElementById('cameraWrap').style.display = 'none';
             document.getElementById('startBtn').style.display = 'flex';
             document.getElementById('stopBtn').style.display = 'none';
             updateScanStatus('');
+            lastCode = '';
+            sameCount = 0;
         }
 
-        // スキャン進捗を画面に表示
         function updateScanStatus(msg) {
             const el = document.getElementById('scanStatus');
             if (el) el.innerHTML = msg;
         }
 
         async function scanLoop() {
-            if (!scanning || !detector) {
-                if (scanning && !detector) {
-                    showResult('<div class="card"><h3>⚠️ お使いのブラウザはカメラスキャン非対応です</h3><p style="color:#94a3b8;margin-top:0.5rem;">バーコード番号を手入力してください。<br>Chrome または Safari をお試しください。</p></div>');
-                    stopCamera();
-                }
-                return;
-            }
+            if (!scanning || !detector) return;
 
             const video = document.getElementById('video');
             try {
@@ -364,12 +416,9 @@
                             lastCode = code;
                             sameCount = 1;
                         }
-
-                        // 読み取り中の進捗を表示
                         const dots = '●'.repeat(sameCount) + '○'.repeat(Math.max(0, CONFIRM_COUNT - sameCount));
                         updateScanStatus(`読取中: ${code} ${dots}`);
 
-                        // 同じ値がCONFIRM_COUNT回連続 → 確定
                         if (sameCount >= CONFIRM_COUNT) {
                             if (navigator.vibrate) navigator.vibrate(80);
                             stopCamera();
