@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>バーコードスキャナー</title>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
@@ -21,7 +16,7 @@
 
         header {
             background: linear-gradient(135deg, #1e293b, #334155);
-            padding: 1.2rem 1.5rem;
+            padding: 1rem 1.5rem;
             text-align: center;
             border-bottom: 1px solid #475569;
             position: sticky;
@@ -29,558 +24,194 @@
             z-index: 100;
         }
 
-        header h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #f8fafc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
+        header h1 { font-size: 1.3rem; font-weight: 700; color: #f8fafc; }
+        .subtitle { font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem; }
 
-        .subtitle {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 0.3rem;
-        }
+        main { max-width: 600px; margin: 0 auto; padding: 1rem; }
 
-        main {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 1.5rem 1rem;
-        }
-
-        /* タブ切り替え */
-        .tab-bar {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
+        .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
         .tab-btn {
-            flex: 1;
-            padding: 0.7rem;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            background: #1e293b;
-            color: #94a3b8;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
+            flex: 1; padding: 0.6rem; border: 1px solid #334155; border-radius: 10px;
+            background: #1e293b; color: #94a3b8; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; text-align: center;
+        }
+        .tab-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* カメラ */
+        .camera-wrap {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
         }
 
-        .tab-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
+        #video {
+            width: 100%;
             display: block;
         }
 
-        /* スキャナーセクション */
-        .scanner-section {
-            background: #1e293b;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid #334155;
-            margin-bottom: 1.5rem;
+        .scan-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px; height: 80px;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
         }
 
-        .scanner-header {
-            padding: 1rem 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .scanner-header h2 {
-            font-size: 1rem;
-            color: #cbd5e1;
-        }
-
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 50px;
-            font-weight: 600;
-        }
-
-        .status-badge.scanning {
-            background: #1e40af;
-            color: #93c5fd;
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-badge.stopped {
-            background: #44403c;
-            color: #a8a29e;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        #reader {
+        .scan-hint {
+            position: absolute;
+            bottom: 12px;
             width: 100%;
-            background: #000;
-        }
-
-        #reader__dashboard {
-            display: none !important;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-            padding: 1rem 1.2rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.8rem 1rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-
-        .btn:active { transform: scale(0.97); }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #60a5fa, #3b82f6);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .divider {
             text-align: center;
-            color: #64748b;
-            font-size: 0.8rem;
-            padding: 0.5rem 0;
+            color: #fbbf24;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        .manual-input {
-            padding: 0 1.2rem 1rem;
+        .btn-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .btn {
+            flex: 1; padding: 0.75rem; border: none; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.3rem;
         }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
 
-        .input-row {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .divider { text-align: center; color: #64748b; font-size: 0.75rem; padding: 0.4rem 0; }
 
+        .manual-input { margin-bottom: 1rem; }
+        .input-row { display: flex; gap: 0.5rem; }
         .input-row input {
-            flex: 1;
-            padding: 0.7rem 1rem;
-            border: 1px solid #475569;
-            border-radius: 10px;
-            background: #0f172a;
-            color: #e2e8f0;
-            font-size: 0.9rem;
-            outline: none;
+            flex: 1; padding: 0.65rem 0.8rem; border: 1px solid #475569; border-radius: 10px;
+            background: #1e293b; color: #e2e8f0; font-size: 0.9rem; outline: none;
         }
-
         .input-row input:focus { border-color: #3b82f6; }
         .input-row input::placeholder { color: #64748b; }
-
         .btn-search {
-            padding: 0.7rem 1.2rem;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
+            padding: 0.65rem 1rem; background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white; border: none; border-radius: 10px; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; white-space: nowrap;
         }
 
-        /* 商品登録フォーム */
-        .register-card {
-            background: #1e293b;
-            border-radius: 16px;
-            border: 1px solid #334155;
-            padding: 1.5rem 1.2rem;
-            animation: slideUp 0.4s ease;
+        /* 登録フォーム */
+        .card {
+            background: #1e293b; border-radius: 14px; border: 1px solid #334155;
+            padding: 1.2rem; animation: slideUp 0.3s ease;
         }
-
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .register-card h3 {
-            font-size: 1.1rem;
-            color: #f8fafc;
-            margin-bottom: 0.3rem;
+        .card h3 { font-size: 1.05rem; color: #f8fafc; margin-bottom: 0.3rem; }
+        .barcode-tag {
+            display: inline-block; background: #0f172a; padding: 0.25rem 0.6rem;
+            border-radius: 6px; font-size: 0.8rem; color: #94a3b8;
+            font-family: 'Courier New', monospace; margin-bottom: 1rem;
         }
-
-        .register-barcode {
-            display: inline-block;
-            background: #0f172a;
-            padding: 0.3rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #94a3b8;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
+        .form-group { margin-bottom: 0.8rem; }
         .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 0.4rem;
-            font-weight: 600;
+            display: block; font-size: 0.75rem; color: #94a3b8;
+            margin-bottom: 0.3rem; font-weight: 600;
         }
-
         .form-group input {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            border: 1px solid #475569;
-            border-radius: 10px;
-            background: #0f172a;
-            color: #e2e8f0;
-            font-size: 0.95rem;
-            outline: none;
+            width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #475569;
+            border-radius: 10px; background: #0f172a; color: #e2e8f0;
+            font-size: 0.9rem; outline: none;
         }
-
         .form-group input:focus { border-color: #3b82f6; }
         .form-group input::placeholder { color: #64748b; }
-
-        .form-group .price-input-wrapper {
-            position: relative;
+        .price-wrap { position: relative; }
+        .price-wrap::before {
+            content: '¥'; position: absolute; left: 0.8rem; top: 50%;
+            transform: translateY(-50%); color: #fbbf24; font-weight: 700;
         }
-
-        .form-group .price-input-wrapper::before {
-            content: '¥';
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #fbbf24;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .form-group .price-input-wrapper input {
-            padding-left: 2rem;
-            color: #fbbf24;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
+        .price-wrap input { padding-left: 1.8rem; color: #fbbf24; font-weight: 700; }
         .btn-register {
-            width: 100%;
-            padding: 0.9rem;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #1a1a2e;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 0.5rem;
+            width: 100%; padding: 0.8rem; background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #1a1a2e; border: none; border-radius: 10px; font-size: 0.95rem;
+            font-weight: 700; cursor: pointer; margin-top: 0.3rem;
         }
 
-        .btn-register:hover {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        }
-
-        .api-info {
-            margin-top: 1rem;
-            padding: 0.8rem 1rem;
-            background: #0f172a;
-            border-radius: 10px;
-            border: 1px solid #334155;
-        }
-
-        .api-info-title {
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-bottom: 0.4rem;
-        }
-
-        .api-info-grid {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 0.2rem 0.8rem;
-            font-size: 0.8rem;
-        }
-
-        .api-info-grid .label { color: #64748b; }
-        .api-info-grid .value { color: #cbd5e1; }
-
-        /* 商品表示カード */
-        .product-card {
-            background: #1e293b;
-            border-radius: 16px;
-            border: 1px solid #334155;
-            overflow: hidden;
-            animation: slideUp 0.4s ease;
-        }
-
-        .product-info {
-            padding: 1.5rem 1.2rem;
-        }
-
-        .product-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-bottom: 0.3rem;
-        }
-
-        .product-barcode {
-            display: inline-block;
-            background: #0f172a;
-            padding: 0.3rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            color: #64748b;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 1rem;
-        }
-
-        .product-price {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #fbbf24;
-            margin-bottom: 1rem;
-        }
-
-        .product-price .yen {
-            font-size: 1.3rem;
-        }
-
-        .product-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
+        /* 商品表示 */
+        .product-name { font-size: 1.2rem; font-weight: 700; color: #f8fafc; margin-bottom: 0.2rem; }
+        .product-price { font-size: 2rem; font-weight: 800; color: #fbbf24; margin: 0.5rem 0; }
+        .product-price .yen { font-size: 1.2rem; }
         .meta-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.6rem 0.8rem;
-            background: #0f172a;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            display: flex; justify-content: space-between; padding: 0.5rem 0.7rem;
+            background: #0f172a; border-radius: 8px; font-size: 0.8rem; margin-bottom: 0.4rem;
         }
-
         .meta-item .label { color: #94a3b8; }
         .meta-item .value { color: #e2e8f0; font-weight: 500; }
-
-        .product-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
+        .product-actions { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
         .btn-edit {
-            flex: 1;
-            padding: 0.7rem;
-            background: #334155;
-            color: #cbd5e1;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
+            flex: 1; padding: 0.6rem; background: #334155; color: #cbd5e1;
+            border: none; border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
         }
-
         .btn-delete {
-            padding: 0.7rem 1rem;
-            background: #ef44441a;
-            color: #f87171;
-            border: 1px solid #ef44444d;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
+            padding: 0.6rem 0.8rem; background: #ef44441a; color: #f87171;
+            border: 1px solid #ef44444d; border-radius: 10px; font-size: 0.8rem;
+            font-weight: 600; cursor: pointer;
         }
 
-        /* ローディング */
-        .loading {
-            text-align: center;
-            padding: 3rem 1rem;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #334155;
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* 商品一覧 */
-        .product-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .product-list-item {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .product-list-item:hover {
-            background: #263043;
-            border-color: #475569;
-        }
-
-        .product-list-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .product-list-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .product-list-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .product-list-barcode {
-            font-size: 0.7rem;
-            color: #64748b;
-            font-family: 'Courier New', monospace;
-        }
-
-        .product-list-price {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #fbbf24;
-            white-space: nowrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #64748b;
-        }
-
-        .empty-state .icon {
-            font-size: 3rem;
-            margin-bottom: 0.75rem;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            color: #94a3b8;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .empty-state p {
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-
-        /* 成功トースト */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #065f46;
-            color: #6ee7b7;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            z-index: 200;
-            transition: transform 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* 検索バー（一覧タブ） */
-        .search-bar {
-            margin-bottom: 1rem;
-        }
-
+        /* 一覧 */
+        .search-bar { margin-bottom: 0.8rem; }
         .search-bar input {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            background: #1e293b;
-            color: #e2e8f0;
-            font-size: 0.9rem;
-            outline: none;
+            width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #334155;
+            border-radius: 10px; background: #1e293b; color: #e2e8f0;
+            font-size: 0.85rem; outline: none;
         }
-
         .search-bar input:focus { border-color: #3b82f6; }
         .search-bar input::placeholder { color: #64748b; }
-
-        .list-summary {
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-bottom: 0.75rem;
+        .list-summary { font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; }
+        .product-list { display: flex; flex-direction: column; gap: 0.4rem; }
+        .product-list-item {
+            background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+            padding: 0.7rem 0.8rem; display: flex; align-items: center; gap: 0.6rem;
+            cursor: pointer; transition: background 0.2s;
         }
-
-        @media (max-width: 480px) {
-            header h1 { font-size: 1.2rem; }
+        .product-list-item:hover { background: #263043; }
+        .product-list-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: #0f172a; display: flex; align-items: center;
+            justify-content: center; font-size: 1.1rem; flex-shrink: 0;
         }
+        .product-list-info { flex: 1; min-width: 0; }
+        .product-list-name {
+            font-size: 0.85rem; font-weight: 600; color: #e2e8f0;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .product-list-barcode { font-size: 0.65rem; color: #64748b; font-family: monospace; }
+        .product-list-price { font-size: 0.95rem; font-weight: 700; color: #fbbf24; white-space: nowrap; }
+
+        .empty-state { text-align: center; padding: 2.5rem 1rem; color: #64748b; }
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; }
+        .empty-state h3 { color: #94a3b8; margin-bottom: 0.3rem; font-size: 0.95rem; }
+        .empty-state p { font-size: 0.8rem; line-height: 1.4; }
+
+        .toast {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: #065f46; color: #6ee7b7; padding: 0.7rem 1.2rem; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; z-index: 200; transition: transform 0.3s;
+            white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* デバッグ */
+        .debug-bar {
+            background: #1a1a2e; border: 1px solid #fbbf2466; border-radius: 8px;
+            padding: 0.5rem 0.7rem; margin-bottom: 0.8rem; font-size: 0.7rem;
+            font-family: monospace; color: #94a3b8;
+        }
+        .debug-bar strong { color: #fbbf24; }
+        .debug-bar .ok { color: #6ee7b7; }
+        .debug-bar .ng { color: #f87171; }
     </style>
 </head>
 <body>
@@ -590,313 +221,278 @@
     </header>
 
     <main>
-        <!-- タブ -->
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('scan')">📸 スキャン</button>
-            <button class="tab-btn" onclick="switchTab('list')">📋 商品一覧</button>
+            <button class="tab-btn" onclick="switchTab('list')">📋 商品一覧 (<span id="countBadge">0</span>)</button>
         </div>
 
-        <!-- スキャンタブ -->
         <div id="tabScan" class="tab-content active">
-            <section class="scanner-section">
-                <div class="scanner-header">
-                    <h2>📸 カメラスキャン</h2>
-                    <span id="statusBadge" class="status-badge stopped">停止中</span>
+            <!-- カメラ -->
+            <div class="camera-wrap" id="cameraWrap" style="display:none;">
+                <video id="video" autoplay playsinline></video>
+                <div class="scan-overlay"></div>
+                <div class="scan-hint">バーコードを枠に合わせてください</div>
+            </div>
+            <canvas id="canvas" style="display:none;"></canvas>
+
+            <div class="btn-group">
+                <button id="startBtn" class="btn btn-primary" onclick="startCamera()">▶ スキャン開始</button>
+                <button id="stopBtn" class="btn btn-danger" onclick="stopCamera()" style="display:none;">■ 停止</button>
+            </div>
+
+            <div class="divider">── または手入力 ──</div>
+            <div class="manual-input">
+                <div class="input-row">
+                    <input type="text" id="barcodeInput" placeholder="バーコード番号" inputmode="numeric"
+                           onkeydown="if(event.key==='Enter') manualLookup()">
+                    <button class="btn-search" onclick="manualLookup()">検索</button>
                 </div>
-                <div id="reader"></div>
-                <div class="btn-group">
-                    <button id="startBtn" class="btn btn-primary" onclick="startScanner()">▶ スキャン開始</button>
-                    <button id="stopBtn" class="btn btn-danger" onclick="stopScanner()" style="display:none;">■ 停止</button>
-                </div>
-                <div class="divider">── または バーコード番号を手入力 ──</div>
-                <div class="manual-input">
-                    <div class="input-row">
-                        <input type="text" id="barcodeInput" placeholder="バーコード番号（例: 4901234567890）"
-                               inputmode="numeric"
-                               onkeydown="if(event.key==='Enter') lookupBarcode()">
-                        <button class="btn-search" onclick="lookupBarcode()">検索</button>
-                    </div>
-                </div>
-            </section>
+            </div>
+
             <div id="resultArea"></div>
         </div>
 
-        <!-- 商品一覧タブ -->
         <div id="tabList" class="tab-content">
             <div class="search-bar">
-                <input type="text" id="listSearch" placeholder="商品名・バーコードで検索..."
-                       oninput="renderProductList()">
+                <input type="text" id="listSearch" placeholder="商品名・バーコードで検索..." oninput="renderList()">
             </div>
-            <div id="productListArea"></div>
+            <div id="listArea"></div>
         </div>
     </main>
 
-    <!-- トースト通知 -->
     <div id="toast" class="toast"></div>
 
     <script>
-        let html5QrCode = null;
-        let isScanning = false;
-
-        // 商品データ: { barcode: { name, price, category, memo, createdAt, updatedAt } }
-        let products = JSON.parse(localStorage.getItem('products') || '{}');
-
-        // 初期表示
-        renderProductList();
-
-        // タブ切り替え
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', (tab === 'scan' && i === 0) || (tab === 'list' && i === 1));
-            });
-            document.getElementById('tabScan').classList.toggle('active', tab === 'scan');
-            document.getElementById('tabList').classList.toggle('active', tab === 'list');
-            if (tab === 'list') renderProductList();
+        // ---- データ管理 ----
+        function loadProducts() {
+            try {
+                return JSON.parse(localStorage.getItem('products') || '{}');
+            } catch(e) {
+                return {};
+            }
         }
 
-        // スキャナー開始
-        async function startScanner() {
+        function saveProducts(data) {
             try {
-                html5QrCode = new Html5Qrcode("reader");
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    {
-                        fps: 20,
-                        qrbox: { width: 200, height: 100 },
-                        aspectRatio: 1.5,
-                        useBarCodeDetectorIfSupported: true,
-                        formatsToSupport: [
-                            Html5QrcodeSupportedFormats.EAN_13,
-                            Html5QrcodeSupportedFormats.EAN_8,
-                            Html5QrcodeSupportedFormats.UPC_A,
-                            Html5QrcodeSupportedFormats.UPC_E,
-                            Html5QrcodeSupportedFormats.CODE_128
-                        ]
-                    },
-                    onScanSuccess,
-                    () => {}
-                );
-                isScanning = true;
+                localStorage.setItem('products', JSON.stringify(data));
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        let products = loadProducts();
+        updateCount();
+
+        // ---- カメラ & スキャン ----
+        let stream = null;
+        let scanning = false;
+        let scanInterval = null;
+        let detector = null;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                await video.play();
+
+                document.getElementById('cameraWrap').style.display = 'block';
                 document.getElementById('startBtn').style.display = 'none';
                 document.getElementById('stopBtn').style.display = 'flex';
-                document.getElementById('statusBadge').textContent = 'スキャン中';
-                document.getElementById('statusBadge').className = 'status-badge scanning';
-            } catch (err) {
-                showResult(`
-                    <div class="register-card">
-                        <h3>⚠️ カメラエラー</h3>
-                        <p style="color:#94a3b8; margin-top:0.5rem;">カメラへのアクセスが拒否されました。<br>ブラウザの設定でカメラの許可を確認してください。</p>
-                    </div>
-                `);
+
+                // BarcodeDetector（Chrome/Safari対応）
+                if ('BarcodeDetector' in window) {
+                    detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
+                } else {
+                    detector = null;
+                }
+
+                scanning = true;
+                scanLoop();
+            } catch(e) {
+                showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
             }
         }
 
-        // スキャナー停止
-        async function stopScanner() {
-            if (html5QrCode && isScanning) {
-                await html5QrCode.stop();
-                html5QrCode.clear();
-                isScanning = false;
-                document.getElementById('startBtn').style.display = 'flex';
-                document.getElementById('stopBtn').style.display = 'none';
-                document.getElementById('statusBadge').textContent = '停止中';
-                document.getElementById('statusBadge').className = 'status-badge stopped';
-            }
+        function stopCamera() {
+            scanning = false;
+            if (scanInterval) { clearTimeout(scanInterval); scanInterval = null; }
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            document.getElementById('cameraWrap').style.display = 'none';
+            document.getElementById('startBtn').style.display = 'flex';
+            document.getElementById('stopBtn').style.display = 'none';
         }
 
-        // スキャン成功
-        async function onScanSuccess(decodedText) {
-            await stopScanner();
-            if (navigator.vibrate) navigator.vibrate(100);
-            handleBarcode(decodedText);
-        }
-
-        // 手動入力
-        function lookupBarcode() {
-            const input = document.getElementById('barcodeInput');
-            const barcode = input.value.trim();
-            if (!barcode) return;
-            input.value = '';
-            handleBarcode(barcode);
-        }
-
-        // バーコード処理のメイン
-        function handleBarcode(barcode) {
-            barcode = barcode.trim();
-            // localStorageから最新データを再読込
-            products = JSON.parse(localStorage.getItem('products') || '{}');
-
-            // デバッグ情報を表示
-            const registeredBarcodes = Object.keys(products);
-            const isFound = !!products[barcode];
-            const debugHtml = `
-                <div style="background:#1a1a2e; border:1px solid #fbbf24; border-radius:10px; padding:0.8rem 1rem; margin-bottom:1rem; font-size:0.75rem; font-family:monospace;">
-                    <div style="color:#fbbf24; font-weight:bold; margin-bottom:0.4rem;">🔍 デバッグ情報</div>
-                    <div style="color:#94a3b8;">スキャン値: <span style="color:#6ee7b7;">"${esc(barcode)}"</span> (${barcode.length}文字)</div>
-                    <div style="color:#94a3b8;">登録済み: ${isFound ? '<span style="color:#6ee7b7;">YES</span>' : '<span style="color:#f87171;">NO</span>'}</div>
-                    <div style="color:#94a3b8;">保存件数: ${registeredBarcodes.length}件</div>
-                    ${registeredBarcodes.length > 0 ? `<div style="color:#94a3b8; margin-top:0.3rem;">登録済みバーコード:<br>${registeredBarcodes.map(b => `<span style="color:#93c5fd;">"${b}"</span>`).join('<br>')}</div>` : ''}
-                </div>
-            `;
-
-            // 既に登録済みならその商品を表示
-            if (products[barcode]) {
-                showResult(debugHtml);
-                document.getElementById('resultArea').innerHTML += '';
-                showProductCard(barcode, debugHtml);
+        async function scanLoop() {
+            if (!scanning || !detector) {
+                // BarcodeDetector非対応の場合のフォールバック
+                if (scanning && !detector) {
+                    showResult('<div class="card"><h3>⚠️ お使いのブラウザはカメラスキャン非対応です</h3><p style="color:#94a3b8;margin-top:0.5rem;">バーコード番号を手入力してください。<br>Chrome または Safari をお試しください。</p></div>');
+                    stopCamera();
+                }
                 return;
             }
 
-            // 未登録 → APIで情報取得を試み、登録フォームを表示
-            showResult(debugHtml + `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p style="color:#94a3b8;">商品情報を検索中...</p>
-                </div>
-            `);
+            const video = document.getElementById('video');
+            try {
+                const barcodes = await detector.detect(video);
+                if (barcodes.length > 0) {
+                    const code = barcodes[0].rawValue;
+                    if (code) {
+                        if (navigator.vibrate) navigator.vibrate(80);
+                        stopCamera();
+                        handleBarcode(code);
+                        return;
+                    }
+                }
+            } catch(e) {}
 
-            fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
-                .then(r => r.json())
-                .then(data => {
-                    const apiProduct = (data.status === 1 && data.product) ? data.product : null;
-                    showRegisterForm(barcode, apiProduct);
-                })
-                .catch(() => {
-                    showRegisterForm(barcode, null);
-                });
+            // 約30fps でスキャン
+            scanInterval = setTimeout(scanLoop, 33);
         }
 
-        // 商品登録フォームを表示
-        function showRegisterForm(barcode, apiProduct) {
-            const prefillName = apiProduct
-                ? (apiProduct.product_name_ja || apiProduct.product_name || '')
-                : '';
-            const prefillCategory = apiProduct
-                ? (apiProduct.categories || '').split(',')[0].trim()
-                : '';
+        // ---- バーコード処理 ----
+        function manualLookup() {
+            const input = document.getElementById('barcodeInput');
+            const code = input.value.trim();
+            if (!code) return;
+            input.value = '';
+            handleBarcode(code);
+        }
 
-            let apiInfoHtml = '';
-            if (apiProduct) {
-                apiInfoHtml = `
-                    <div class="api-info">
-                        <div class="api-info-title">🌐 データベースから取得した情報</div>
-                        <div class="api-info-grid">
-                            ${apiProduct.product_name ? `<span class="label">商品名</span><span class="value">${esc(apiProduct.product_name)}</span>` : ''}
-                            ${apiProduct.brands ? `<span class="label">ブランド</span><span class="value">${esc(apiProduct.brands)}</span>` : ''}
-                            ${apiProduct.quantity ? `<span class="label">内容量</span><span class="value">${esc(apiProduct.quantity)}</span>` : ''}
-                            ${apiProduct.categories ? `<span class="label">カテゴリ</span><span class="value">${esc(apiProduct.categories.split(',')[0])}</span>` : ''}
-                        </div>
-                    </div>
-                `;
+        function handleBarcode(barcode) {
+            barcode = barcode.trim();
+
+            // 毎回localStorageから読み直す
+            products = loadProducts();
+            const registered = Object.keys(products);
+            const found = !!products[barcode];
+
+            // デバッグ表示
+            const debug = `<div class="debug-bar">
+                <strong>スキャン:</strong> "${barcode}" (${barcode.length}桁)
+                | <strong>登録済み:</strong> ${found ? '<span class="ok">YES</span>' : '<span class="ng">NO</span>'}
+                | <strong>保存数:</strong> ${registered.length}件
+                ${registered.length > 0 ? '<br>保存済み: ' + registered.map(b => '"' + b + '"').join(', ') : ''}
+            </div>`;
+
+            if (found) {
+                showProductCard(barcode, debug);
+            } else {
+                showRegisterForm(barcode, debug);
             }
+        }
 
+        // ---- 登録フォーム ----
+        function showRegisterForm(barcode, debug) {
             showResult(`
-                <div class="register-card">
-                    <h3>${apiProduct ? '📦 商品が見つかりました' : '🆕 新しい商品'}</h3>
-                    <span class="register-barcode">${barcode}</span>
-                    ${apiInfoHtml}
-                    <p style="color:#94a3b8; font-size:0.85rem; margin: 1rem 0 0.3rem;">商品名と価格を入力して登録してください</p>
+                ${debug || ''}
+                <div class="card">
+                    <h3>🆕 新しい商品</h3>
+                    <span class="barcode-tag">${barcode}</span>
                     <div class="form-group">
                         <label>商品名 *</label>
-                        <input type="text" id="regName" placeholder="例: おーいお茶 500ml" value="${esc(prefillName)}">
+                        <input type="text" id="regName" placeholder="例: おーいお茶 500ml">
                     </div>
                     <div class="form-group">
                         <label>価格（税込） *</label>
-                        <div class="price-input-wrapper">
+                        <div class="price-wrap">
                             <input type="number" id="regPrice" placeholder="150" inputmode="numeric">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>カテゴリ（任意）</label>
-                        <input type="text" id="regCategory" placeholder="例: 飲料、食品、日用品" value="${esc(prefillCategory)}">
+                        <input type="text" id="regCategory" placeholder="例: 飲料、食品、日用品">
                     </div>
                     <div class="form-group">
                         <label>メモ（任意）</label>
-                        <input type="text" id="regMemo" placeholder="例: セール品、まとめ買い用">
+                        <input type="text" id="regMemo" placeholder="例: セール品">
                     </div>
-                    <button class="btn-register" onclick="registerProduct('${barcode}')">💰 この商品を登録</button>
+                    <button class="btn-register" onclick="registerProduct('${barcode}')">💰 登録</button>
                 </div>
             `);
-
-            // 商品名が空なら名前にフォーカス、あれば価格にフォーカス
-            setTimeout(() => {
-                const target = prefillName ? document.getElementById('regPrice') : document.getElementById('regName');
-                if (target) target.focus();
-            }, 100);
+            setTimeout(() => { const el = document.getElementById('regName'); if(el) el.focus(); }, 50);
         }
 
-        // 商品を登録
+        // ---- 商品登録 ----
         function registerProduct(barcode) {
             const name = document.getElementById('regName').value.trim();
             const price = document.getElementById('regPrice').value.trim();
-            const category = document.getElementById('regCategory').value.trim();
-            const memo = document.getElementById('regMemo').value.trim();
+            const category = (document.getElementById('regCategory')?.value || '').trim();
+            const memo = (document.getElementById('regMemo')?.value || '').trim();
 
-            if (!name) {
-                document.getElementById('regName').focus();
-                return;
-            }
-            if (!price || isNaN(price)) {
-                document.getElementById('regPrice').focus();
-                return;
-            }
+            if (!name) { document.getElementById('regName').focus(); return; }
+            if (!price || isNaN(price)) { document.getElementById('regPrice').focus(); return; }
 
+            // 最新データに対して保存
+            products = loadProducts();
             const now = new Date().toISOString();
             products[barcode] = {
                 name,
                 price: parseInt(price),
-                category: category || '',
-                memo: memo || '',
+                category,
+                memo,
                 createdAt: products[barcode]?.createdAt || now,
                 updatedAt: now
             };
 
-            localStorage.setItem('products', JSON.stringify(products));
-            showToast(`${name} を登録しました`);
-            showProductCard(barcode);
+            const ok = saveProducts(products);
+            if (ok) {
+                // 保存確認のため再読込
+                const verify = loadProducts();
+                if (verify[barcode]) {
+                    showToast(`✅ ${name} を保存しました`);
+                    showProductCard(barcode);
+                    updateCount();
+                } else {
+                    showToast('⚠️ 保存に失敗しました');
+                }
+            } else {
+                showToast('⚠️ ストレージへの保存に失敗しました');
+            }
         }
 
-        // 登録済み商品の表示
-        function showProductCard(barcode, debugHtml) {
+        // ---- 商品カード表示 ----
+        function showProductCard(barcode, debug) {
+            products = loadProducts();
             const p = products[barcode];
-            if (!p) return;
+            if (!p) { showRegisterForm(barcode, debug); return; }
 
             showResult(`
-                ${debugHtml || ''}
-                <div class="product-card">
-                    <div class="product-info">
-                        <h3 class="product-name">${esc(p.name)}</h3>
-                        <span class="product-barcode">${barcode}</span>
-                        <div class="product-price"><span class="yen">¥</span>${Number(p.price).toLocaleString()}</div>
-                        <div class="product-meta">
-                            ${p.category ? `<div class="meta-item"><span class="label">カテゴリ</span><span class="value">${esc(p.category)}</span></div>` : ''}
-                            ${p.memo ? `<div class="meta-item"><span class="label">メモ</span><span class="value">${esc(p.memo)}</span></div>` : ''}
-                            <div class="meta-item"><span class="label">登録日</span><span class="value">${formatDate(p.createdAt)}</span></div>
-                            ${p.updatedAt !== p.createdAt ? `<div class="meta-item"><span class="label">更新日</span><span class="value">${formatDate(p.updatedAt)}</span></div>` : ''}
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-edit" onclick="editProduct('${barcode}')">✏️ 編集</button>
-                            <button class="btn-delete" onclick="deleteProduct('${barcode}')">🗑 削除</button>
-                        </div>
+                ${debug || ''}
+                <div class="card">
+                    <h3 class="product-name">${esc(p.name)}</h3>
+                    <span class="barcode-tag">${barcode}</span>
+                    <div class="product-price"><span class="yen">¥</span>${Number(p.price).toLocaleString()}</div>
+                    ${p.category ? `<div class="meta-item"><span class="label">カテゴリ</span><span class="value">${esc(p.category)}</span></div>` : ''}
+                    ${p.memo ? `<div class="meta-item"><span class="label">メモ</span><span class="value">${esc(p.memo)}</span></div>` : ''}
+                    <div class="meta-item"><span class="label">登録日</span><span class="value">${fmtDate(p.createdAt)}</span></div>
+                    <div class="product-actions">
+                        <button class="btn-edit" onclick="editProduct('${barcode}')">✏️ 編集</button>
+                        <button class="btn-delete" onclick="deleteProduct('${barcode}')">🗑 削除</button>
                     </div>
                 </div>
             `);
         }
 
-        // 商品編集（登録フォームを再利用）
+        // ---- 編集 ----
         function editProduct(barcode) {
             const p = products[barcode];
+            if (!p) return;
             showResult(`
-                <div class="register-card">
+                <div class="card">
                     <h3>✏️ 商品を編集</h3>
-                    <span class="register-barcode">${barcode}</span>
+                    <span class="barcode-tag">${barcode}</span>
                     <div class="form-group">
                         <label>商品名 *</label>
                         <input type="text" id="regName" value="${esc(p.name)}">
                     </div>
                     <div class="form-group">
                         <label>価格（税込） *</label>
-                        <div class="price-input-wrapper">
+                        <div class="price-wrap">
                             <input type="number" id="regPrice" value="${p.price}" inputmode="numeric">
                         </div>
                     </div>
@@ -908,84 +504,84 @@
                         <label>メモ</label>
                         <input type="text" id="regMemo" value="${esc(p.memo)}">
                     </div>
-                    <button class="btn-register" onclick="registerProduct('${barcode}')">💰 更新する</button>
+                    <button class="btn-register" onclick="registerProduct('${barcode}')">💰 更新</button>
                 </div>
             `);
         }
 
-        // 商品削除
+        // ---- 削除 ----
         function deleteProduct(barcode) {
             const name = products[barcode]?.name || '';
             if (!confirm(`「${name}」を削除しますか？`)) return;
+            products = loadProducts();
             delete products[barcode];
-            localStorage.setItem('products', JSON.stringify(products));
+            saveProducts(products);
             showToast(`${name} を削除しました`);
             showResult('');
-            renderProductList();
+            updateCount();
         }
 
-        // 商品一覧の表示
-        function renderProductList() {
-            const area = document.getElementById('productListArea');
-            const search = (document.getElementById('listSearch')?.value || '').trim().toLowerCase();
+        // ---- 商品一覧 ----
+        function renderList() {
+            const area = document.getElementById('listArea');
+            products = loadProducts();
+            const search = (document.getElementById('listSearch')?.value || '').toLowerCase();
             const entries = Object.entries(products)
-                .filter(([barcode, p]) => {
-                    if (!search) return true;
-                    return p.name.toLowerCase().includes(search)
-                        || barcode.includes(search)
-                        || (p.category && p.category.toLowerCase().includes(search));
-                })
-                .sort((a, b) => new Date(b[1].updatedAt) - new Date(a[1].updatedAt));
+                .filter(([b, p]) => !search || p.name.toLowerCase().includes(search) || b.includes(search))
+                .sort((a, b) => (b[1].updatedAt || '').localeCompare(a[1].updatedAt || ''));
 
             if (Object.keys(products).length === 0) {
-                area.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">📦</div>
-                        <h3>商品が登録されていません</h3>
-                        <p>「スキャン」タブからバーコードを<br>読み取って商品を登録しましょう</p>
-                    </div>
-                `;
+                area.innerHTML = '<div class="empty-state"><div class="icon">📦</div><h3>商品が未登録です</h3><p>スキャンタブからバーコードを<br>読み取って登録しましょう</p></div>';
                 return;
             }
 
-            let html = `<div class="list-summary">${entries.length}件の商品</div><div class="product-list">`;
-            for (const [barcode, p] of entries) {
+            let html = `<div class="list-summary">${entries.length}件</div><div class="product-list">`;
+            for (const [b, p] of entries) {
                 html += `
-                    <div class="product-list-item" onclick="switchTab('scan'); setTimeout(() => showProductCard('${barcode}'), 100);">
+                    <div class="product-list-item" onclick="switchTab('scan');setTimeout(()=>showProductCard('${b}'),50)">
                         <div class="product-list-icon">📦</div>
                         <div class="product-list-info">
                             <div class="product-list-name">${esc(p.name)}</div>
-                            <div class="product-list-barcode">${barcode}${p.category ? ` · ${esc(p.category)}` : ''}</div>
+                            <div class="product-list-barcode">${b}</div>
                         </div>
                         <div class="product-list-price">¥${Number(p.price).toLocaleString()}</div>
-                    </div>
-                `;
+                    </div>`;
             }
-            html += '</div>';
-            area.innerHTML = html;
+            area.innerHTML = html + '</div>';
         }
 
-        // ユーティリティ
-        function showResult(html) {
-            document.getElementById('resultArea').innerHTML = html;
+        // ---- ユーティリティ ----
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) =>
+                b.classList.toggle('active', (tab === 'scan' && i === 0) || (tab === 'list' && i === 1)));
+            document.getElementById('tabScan').classList.toggle('active', tab === 'scan');
+            document.getElementById('tabList').classList.toggle('active', tab === 'list');
+            if (tab === 'list') renderList();
         }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
+        function showResult(html) { document.getElementById('resultArea').innerHTML = html; }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
         }
 
-        function formatDate(iso) {
+        function updateCount() {
+            const el = document.getElementById('countBadge');
+            if (el) el.textContent = Object.keys(loadProducts()).length;
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '-';
             const d = new Date(iso);
-            return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+            return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
         }
 
-        function esc(str) {
-            const div = document.createElement('div');
-            div.textContent = str || '';
-            return div.innerHTML;
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s || '';
+            return d.innerHTML;
         }
     </script>
 </body>
