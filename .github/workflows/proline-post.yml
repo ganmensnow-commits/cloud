@@ -1,0 +1,41 @@
+name: Proline Affiliate X Auto Post
+
+# 毎晩22:00 JST（= 13:00 UTC）に実行
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # history.json をコミットするため
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存パッケージをインストール
+        run: pip install -r x-auto-post-proline/requirements.txt
+
+      - name: 投稿を生成して X に送信
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+        run: python x-auto-post-proline/post.py
+
+      - name: 投稿履歴をコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add x-auto-post-proline/history.json || true
+          git diff --staged --quiet || git commit -m "chore: プロラインアフィリエイト投稿履歴を更新"
+          git push
