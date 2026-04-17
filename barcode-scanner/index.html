@@ -231,6 +231,7 @@
             <div class="camera-wrap" id="cameraWrap" style="display:none;">
                 <video id="video" autoplay playsinline></video>
                 <div class="scan-overlay"></div>
+                <div id="scanStatus" style="position:absolute;top:10px;left:0;width:100%;text-align:center;color:#6ee7b7;font-size:0.75rem;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.8);"></div>
                 <div class="scan-hint">バーコードを枠に合わせてください</div>
             </div>
             <canvas id="canvas" style="display:none;"></canvas>
@@ -290,7 +291,17 @@
         let scanInterval = null;
         let detector = null;
 
+        // 安定スキャン用：同じ値が連続で読めたら確定
+        const CONFIRM_COUNT = 3;
+        let lastCode = '';
+        let sameCount = 0;
+
         async function startCamera() {
+            // スキャン状態リセット
+            lastCode = '';
+            sameCount = 0;
+            updateScanStatus('');
+
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
@@ -303,7 +314,6 @@
                 document.getElementById('startBtn').style.display = 'none';
                 document.getElementById('stopBtn').style.display = 'flex';
 
-                // BarcodeDetector（Chrome/Safari対応）
                 if ('BarcodeDetector' in window) {
                     detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
                 } else {
@@ -324,11 +334,17 @@
             document.getElementById('cameraWrap').style.display = 'none';
             document.getElementById('startBtn').style.display = 'flex';
             document.getElementById('stopBtn').style.display = 'none';
+            updateScanStatus('');
+        }
+
+        // スキャン進捗を画面に表示
+        function updateScanStatus(msg) {
+            const el = document.getElementById('scanStatus');
+            if (el) el.innerHTML = msg;
         }
 
         async function scanLoop() {
             if (!scanning || !detector) {
-                // BarcodeDetector非対応の場合のフォールバック
                 if (scanning && !detector) {
                     showResult('<div class="card"><h3>⚠️ お使いのブラウザはカメラスキャン非対応です</h3><p style="color:#94a3b8;margin-top:0.5rem;">バーコード番号を手入力してください。<br>Chrome または Safari をお試しください。</p></div>');
                     stopCamera();
@@ -342,16 +358,58 @@
                 if (barcodes.length > 0) {
                     const code = barcodes[0].rawValue;
                     if (code) {
-                        if (navigator.vibrate) navigator.vibrate(80);
-                        stopCamera();
-                        handleBarcode(code);
-                        return;
+                        if (code === lastCode) {
+                            sameCount++;
+                        } else {
+                            lastCode = code;
+                            sameCount = 1;
+                        }
+
+                        // 読み取り中の進捗を表示
+                        const dots = '●'.repeat(sameCount) + '○'.repeat(Math.max(0, CONFIRM_COUNT - sameCount));
+                        updateScanStatus(`読取中: ${code} ${dots}`);
+
+                        // 同じ値がCONFIRM_COUNT回連続 → 確定
+                        if (sameCount >= CONFIRM_COUNT) {
+                            if (navigator.vibrate) navigator.vibrate(80);
+                            stopCamera();
+                            showConfirm(code);
+                            return;
+                        }
                     }
                 }
             } catch(e) {}
 
-            // 約30fps でスキャン
-            scanInterval = setTimeout(scanLoop, 33);
+            scanInterval = setTimeout(scanLoop, 50);
+        }
+
+        // スキャン結果を確認させてから処理に進む
+        function showConfirm(barcode) {
+            products = loadProducts();
+            const found = !!products[barcode];
+
+            showResult(`
+                <div class="card">
+                    <h3>📷 スキャン結果</h3>
+                    <p style="color:#94a3b8; font-size:0.8rem; margin-bottom:0.6rem;">番号が正しいか確認してください。違う場合は修正できます。</p>
+                    <div class="form-group">
+                        <label>バーコード番号</label>
+                        <input type="text" id="confirmBarcode" value="${barcode}" style="font-family:monospace; font-size:1.1rem; font-weight:700; letter-spacing:0.05em;">
+                    </div>
+                    ${found ? '<p style="color:#6ee7b7; font-size:0.85rem; font-weight:600;">✅ この商品は登録済みです</p>' : '<p style="color:#fbbf24; font-size:0.85rem;">🆕 未登録の商品です</p>'}
+                    <div style="display:flex; gap:0.5rem; margin-top:0.8rem;">
+                        <button class="btn-register" onclick="confirmAndProceed()">OK</button>
+                        <button class="btn-edit" onclick="startCamera()" style="flex:0 0 auto; padding:0.8rem 1.2rem;">再スキャン</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function confirmAndProceed() {
+            const input = document.getElementById('confirmBarcode');
+            const barcode = (input?.value || '').trim();
+            if (!barcode) return;
+            handleBarcode(barcode);
         }
 
         // ---- バーコード処理 ----
