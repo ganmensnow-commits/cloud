@@ -295,8 +295,8 @@
         let detector = null;
         let html5QrCode = null;
 
-        // 安定スキャン用：同じ値が連続で読めたら確定
-        const CONFIRM_COUNT = 3;
+        // 確認画面で修正できるので1回読めたら即確定
+        const CONFIRM_COUNT = 1;
         let lastCode = '';
         let sameCount = 0;
 
