@@ -213,6 +213,28 @@
         .debug-bar strong { color: #fbbf24; }
         .debug-bar .ok { color: #6ee7b7; }
         .debug-bar .ng { color: #f87171; }
+
+        /* ライトボタン */
+        .torch-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3);
+            color: white; border-radius: 8px; padding: 0.4rem 0.7rem;
+            font-size: 0.8rem; cursor: pointer; z-index: 10;
+        }
+        .torch-btn.on { background: rgba(251,191,36,0.8); color: #1a1a2e; border-color: #fbbf24; }
+
+        /* タップフォーカス */
+        .camera-wrap { cursor: crosshair; }
+        .focus-ring {
+            position: absolute; width: 60px; height: 60px;
+            border: 2px solid #fbbf24; border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none; animation: focusFade 0.8s ease forwards;
+        }
+        @keyframes focusFade {
+            0% { opacity: 1; transform: translate(-50%,-50%) scale(1.3); }
+            100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -232,8 +254,9 @@
             <div class="camera-wrap" id="cameraWrap" style="display:none;">
                 <video id="video" autoplay playsinline></video>
                 <div class="scan-overlay"></div>
-                <div id="scanStatus" style="position:absolute;top:10px;left:0;width:100%;text-align:center;color:#6ee7b7;font-size:0.75rem;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.8);"></div>
-                <div class="scan-hint">バーコードを枠に合わせてください</div>
+                <div id="scanStatus" style="position:absolute;top:10px;left:0;width:80%;text-align:center;color:#6ee7b7;font-size:0.75rem;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.8);"></div>
+                <button id="torchBtn" class="torch-btn" onclick="toggleTorch()" style="display:none;">💡 ライト</button>
+                <div class="scan-hint">枠に合わせる・タップでフォーカス</div>
             </div>
             <canvas id="canvas" style="display:none;"></canvas>
             <!-- html5-qrcode フォールバック用 -->
@@ -294,6 +317,7 @@
         let scanInterval = null;
         let detector = null;
         let html5QrCode = null;
+        let torchOn = false;
 
         // 確認画面で修正できるので1回読めたら即確定
         const CONFIRM_COUNT = 1;
@@ -303,21 +327,37 @@
         async function startCamera() {
             lastCode = '';
             sameCount = 0;
+            torchOn = false;
             updateScanStatus('');
 
             // BarcodeDetector対応ブラウザ（主にChrome）
             if ('BarcodeDetector' in window) {
                 try {
                     stream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                        video: {
+                            facingMode: 'environment',
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 },
+                            focusMode: { ideal: 'continuous' },   // 連続オートフォーカス
+                            exposureMode: { ideal: 'continuous' } // 自動露出
+                        }
                     });
                     const video = document.getElementById('video');
                     video.srcObject = stream;
                     await video.play();
 
+                    // ライトボタン表示（対応端末のみ）
+                    const track = stream.getVideoTracks()[0];
+                    const caps = track.getCapabilities?.() || {};
+                    const torchBtn = document.getElementById('torchBtn');
+                    if (caps.torch) torchBtn.style.display = 'block';
+
                     document.getElementById('cameraWrap').style.display = 'block';
                     document.getElementById('startBtn').style.display = 'none';
                     document.getElementById('stopBtn').style.display = 'flex';
+
+                    // タップでフォーカス
+                    document.getElementById('cameraWrap').onclick = tapToFocus;
 
                     detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
                     scanning = true;
@@ -329,6 +369,42 @@
                 // フォールバック: html5-qrcode を使用（Safari等）
                 startHtml5QrCode();
             }
+        }
+
+        // タップでフォーカス
+        function tapToFocus(e) {
+            if (!stream) return;
+            const wrap = document.getElementById('cameraWrap');
+            const rect = wrap.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            // フォーカスリング表示
+            const ring = document.createElement('div');
+            ring.className = 'focus-ring';
+            ring.style.left = (e.clientX - rect.left) + 'px';
+            ring.style.top = (e.clientY - rect.top) + 'px';
+            wrap.appendChild(ring);
+            setTimeout(() => ring.remove(), 900);
+
+            // フォーカス位置を指定（対応ブラウザのみ）
+            const track = stream.getVideoTracks()[0];
+            track.applyConstraints?.({
+                advanced: [{ pointOfInterest: { x, y }, focusMode: 'single-shot' }]
+            }).catch(() => {});
+        }
+
+        // ライトON/OFF
+        async function toggleTorch() {
+            if (!stream) return;
+            const track = stream.getVideoTracks()[0];
+            torchOn = !torchOn;
+            try {
+                await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+                const btn = document.getElementById('torchBtn');
+                btn.textContent = torchOn ? '💡 ON' : '💡 ライト';
+                btn.classList.toggle('on', torchOn);
+            } catch(e) { torchOn = !torchOn; }
         }
 
         function startHtml5QrCode() {
@@ -379,7 +455,18 @@
         function stopCamera() {
             scanning = false;
             if (scanInterval) { clearTimeout(scanInterval); scanInterval = null; }
-            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            if (stream) {
+                // ライトOFF
+                if (torchOn) {
+                    const track = stream.getVideoTracks()[0];
+                    track.applyConstraints?.({ advanced: [{ torch: false }] }).catch(() => {});
+                    torchOn = false;
+                }
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            document.getElementById('torchBtn').style.display = 'none';
+            document.getElementById('cameraWrap').onclick = null;
             if (html5QrCode) {
                 html5QrCode.stop().catch(() => {}).finally(() => {
                     html5QrCode.clear();
