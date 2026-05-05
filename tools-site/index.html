@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="年齢計算・BMI計算・割り勘計算・文字数カウントなど日常で使える便利な計算ツール集。">
+  <title>計算ツール集 | 日常で使える便利ツール</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #06b6d4;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 16px;
+      --shadow: 0 4px 24px rgba(99,102,241,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ヘッダー */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      text-align: center;
+      padding: 48px 24px 40px;
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin-top: 8px;
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+
+    /* ナビゲーション */
+    nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    nav a {
+      display: inline-block;
+      padding: 14px 16px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* メインレイアウト */
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 16px 80px;
+    }
+
+    /* ツールカード */
+    .tool-section {
+      display: none;
+    }
+
+    .tool-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title .icon {
+      font-size: 1.6rem;
+    }
+
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    /* フォーム */
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="date"],
+    input[type="number"],
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .input-row { grid-template-columns: 1fr; }
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    /* ボタン */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    /* 結果表示 */
+    .result-box {
+      background: linear-gradient(135deg, #f0f4ff, #e8f4f8);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .result-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+    .result-main {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .result-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* BMIゲージ */
+    .bmi-gauge {
+      margin-top: 16px;
+    }
+
+    .bmi-bar {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(to right, #06b6d4, #10b981, #f59e0b, #ef4444);
+      position: relative;
+      margin: 8px 0;
+    }
+
+    .bmi-pointer {
+      position: absolute;
+      top: -4px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border: 3px solid var(--text);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      transition: left 0.5s ease;
+    }
+
+    .bmi-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* 割り勘テーブル */
+    .warikan-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .warikan-table th, .warikan-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    .warikan-table th {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: var(--bg);
+    }
+
+    .warikan-table tr:last-child td { border-bottom: none; }
+
+    .warikan-total {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    /* 文字数カウンター */
+    .count-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 400px) {
+      .count-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .count-item {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .count-item.highlight {
+      border-color: var(--primary);
+      background: #f0f4ff;
+    }
+
+    .count-num {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .count-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* カウントダウン */
+    .countdown-display {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 400px) {
+      .countdown-display { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .countdown-unit {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 12px;
+      padding: 20px 12px;
+      text-align: center;
+    }
+
+    .countdown-num {
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .countdown-label {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    /* 消費税計算 */
+    .tax-results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .tax-item {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .tax-item.primary {
+      border-color: var(--primary);
+      background: #f0f4ff;
+    }
+
+    .tax-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .tax-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* フッター */
+    footer {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* AdSense プレースホルダー */
+    .ad-placeholder {
+      background: var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin: 16px 0;
+    }
+
+    /* エラー */
+    .error-msg {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 8px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ 計算ツール集</h1>
+  <p>日常で使える便利なツールをまとめました</p>
+</header>
+
+<nav id="nav">
+  <a href="#" class="active" data-tool="age">🎂 年齢計算</a>
+  <a href="#" data-tool="bmi">💪 BMI計算</a>
+  <a href="#" data-tool="warikan">🍻 割り勘</a>
+  <a href="#" data-tool="chars">📝 文字数</a>
+  <a href="#" data-tool="countdown">⏳ カウントダウン</a>
+  <a href="#" data-tool="tax">🧾 消費税</a>
+</nav>
+
+<main>
+
+  <!-- AdSense（申請後ここにコードを貼る） -->
+  <div class="ad-placeholder">広告スペース（Google AdSense）</div>
+
+  <!-- 年齢計算 -->
+  <section class="tool-section active" id="tool-age">
+    <div class="card">
+      <div class="card-title"><span class="icon">🎂</span>年齢計算機</div>
+      <p class="card-desc">生年月日を入力すると、今日時点の正確な年齢を計算します。</p>
+      <div class="input-group">
+        <label>生年月日</label>
+        <input type="date" id="age-birth" max="">
+      </div>
+      <div class="input-group">
+        <label>基準日（省略可：デフォルトは今日）</label>
+        <input type="date" id="age-target">
+      </div>
+      <button class="btn btn-primary" onclick="calcAge()">計算する</button>
+      <div class="error-msg" id="age-error">生年月日を入力してください</div>
+      <div class="result-box" id="age-result">
+        <div class="result-main" id="age-main"></div>
+        <div class="result-sub" id="age-sub"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BMI計算 -->
+  <section class="tool-section" id="tool-bmi">
+    <div class="card">
+      <div class="card-title"><span class="icon">💪</span>BMI計算機</div>
+      <p class="card-desc">身長と体重からBMIを計算し、肥満度を判定します。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>身長 (cm)</label>
+          <input type="number" id="bmi-height" placeholder="170" min="50" max="250">
+        </div>
+        <div class="input-group">
+          <label>体重 (kg)</label>
+          <input type="number" id="bmi-weight" placeholder="65" min="1" max="500" step="0.1">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="calcBMI()">計算する</button>
+      <div class="error-msg" id="bmi-error">身長と体重を入力してください</div>
+      <div class="result-box" id="bmi-result">
+        <div class="result-main" id="bmi-main"></div>
+        <div class="result-sub" id="bmi-sub"></div>
+        <div class="bmi-gauge">
+          <div class="bmi-bar">
+            <div class="bmi-pointer" id="bmi-pointer"></div>
+          </div>
+          <div class="bmi-labels">
+            <span>低体重</span><span>普通</span><span>過体重</span><span>肥満</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 割り勘 -->
+  <section class="tool-section" id="tool-warikan">
+    <div class="card">
+      <div class="card-title"><span class="icon">🍻</span>割り勘計算機</div>
+      <p class="card-desc">合計金額と人数を入力して、一人あたりの負担額を計算します。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>合計金額 (円)</label>
+          <input type="number" id="wari-total" placeholder="12800" min="0">
+        </div>
+        <div class="input-group">
+          <label>人数</label>
+          <input type="number" id="wari-people" placeholder="4" min="1" max="100">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>端数処理</label>
+        <select id="wari-round">
+          <option value="ceil">切り上げ</option>
+          <option value="floor">切り捨て</option>
+          <option value="round">四捨五入</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="calcWarikan()">計算する</button>
+      <div class="error-msg" id="wari-error">合計金額と人数を入力してください</div>
+      <div class="result-box" id="wari-result">
+        <div class="result-main" id="wari-main"></div>
+        <div class="result-sub" id="wari-sub"></div>
+        <table class="warikan-table" id="wari-table"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 文字数カウント -->
+  <section class="tool-section" id="tool-chars">
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span>文字数カウンター</div>
+      <p class="card-desc">テキストを入力すると文字数・単語数・行数をリアルタイムで表示します。</p>
+      <div class="input-group">
+        <label>テキストを入力</label>
+        <textarea id="chars-input" placeholder="ここにテキストを貼り付けてください..." oninput="countChars()"></textarea>
+      </div>
+      <div class="count-grid" id="count-grid">
+        <div class="count-item highlight">
+          <div class="count-num" id="count-all">0</div>
+          <div class="count-label">全文字数</div>
+        </div>
+        <div class="count-item">
+          <div class="count-num" id="count-nospace">0</div>
+          <div class="count-label">空白除く</div>
+        </div>
+        <div class="count-item">
+          <div class="count-num" id="count-words">0</div>
+          <div class="count-label">単語数</div>
+        </div>
+        <div class="count-item">
+          <div class="count-num" id="count-lines">0</div>
+          <div class="count-label">行数</div>
+        </div>
+        <div class="count-item">
+          <div class="count-num" id="count-bytes">0</div>
+          <div class="count-label">バイト数</div>
+        </div>
+        <div class="count-item">
+          <div class="count-num" id="count-para">0</div>
+          <div class="count-label">段落数</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- カウントダウン -->
+  <section class="tool-section" id="tool-countdown">
+    <div class="card">
+      <div class="card-title"><span class="icon">⏳</span>カウントダウンタイマー</div>
+      <p class="card-desc">目標日を入力すると、残り日数・時間をリアルタイムで表示します。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>イベント名（任意）</label>
+          <input type="text" id="cd-name" placeholder="例：夏休み">
+        </div>
+        <div class="input-group">
+          <label>目標日</label>
+          <input type="date" id="cd-date">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="startCountdown()">カウントダウン開始</button>
+      <div class="error-msg" id="cd-error">目標日を入力してください</div>
+      <div class="result-box" id="cd-result">
+        <div class="result-sub" id="cd-title" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;"></div>
+        <div class="countdown-display" id="cd-display">
+          <div class="countdown-unit"><div class="countdown-num" id="cd-days">0</div><div class="countdown-label">日</div></div>
+          <div class="countdown-unit"><div class="countdown-num" id="cd-hours">0</div><div class="countdown-label">時間</div></div>
+          <div class="countdown-unit"><div class="countdown-num" id="cd-mins">0</div><div class="countdown-label">分</div></div>
+          <div class="countdown-unit"><div class="countdown-num" id="cd-secs">0</div><div class="countdown-label">秒</div></div>
+        </div>
+        <div class="result-sub" id="cd-sub" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 消費税計算 -->
+  <section class="tool-section" id="tool-tax">
+    <div class="card">
+      <div class="card-title"><span class="icon">🧾</span>消費税計算機</div>
+      <p class="card-desc">金額を入力して税込・税抜・税額を瞬時に計算します。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>金額 (円)</label>
+          <input type="number" id="tax-amount" placeholder="1000" min="0" oninput="calcTax()">
+        </div>
+        <div class="input-group">
+          <label>税率</label>
+          <select id="tax-rate" onchange="calcTax()">
+            <option value="10">10%（標準税率）</option>
+            <option value="8">8%（軽減税率）</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>入力金額の種別</label>
+        <select id="tax-type" onchange="calcTax()">
+          <option value="excl">税抜価格</option>
+          <option value="incl">税込価格</option>
+        </select>
+      </div>
+      <div class="tax-results" id="tax-results" style="display:none;">
+        <div class="tax-item">
+          <div class="tax-num" id="tax-excl">—</div>
+          <div class="tax-label">税抜価格</div>
+        </div>
+        <div class="tax-item">
+          <div class="tax-num" id="tax-tax">—</div>
+          <div class="tax-label">消費税額</div>
+        </div>
+        <div class="tax-item primary" style="grid-column:span 2;">
+          <div class="tax-num" id="tax-incl">—</div>
+          <div class="tax-label">税込価格</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ad-placeholder">広告スペース（Google AdSense）</div>
+
+</main>
+
+<footer>
+  &copy; 2024 計算ツール集 — 日常で使える便利ツール
+</footer>
+
+<script>
+  // タブ切り替え
+  const navLinks = document.querySelectorAll('nav a');
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const tool = link.dataset.tool;
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.tool-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('tool-' + tool).classList.add('active');
+    });
+  });
+
+  // 今日の日付をデフォルト設定
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('age-target').value = today;
+  document.getElementById('age-birth').max = today;
+  document.getElementById('cd-date').min = today;
+
+  // ── 年齢計算 ──
+  function calcAge() {
+    const birth = document.getElementById('age-birth').value;
+    const target = document.getElementById('age-target').value || today;
+    const err = document.getElementById('age-error');
+    const res = document.getElementById('age-result');
+    if (!birth) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    const b = new Date(birth);
+    const t = new Date(target);
+    let age = t.getFullYear() - b.getFullYear();
+    const m = t.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && t.getDate() < b.getDate())) age--;
+
+    const nextBirth = new Date(t.getFullYear(), b.getMonth(), b.getDate());
+    if (nextBirth <= t) nextBirth.setFullYear(t.getFullYear() + 1);
+    const diffDays = Math.ceil((nextBirth - t) / (1000 * 60 * 60 * 24));
+
+    const totalDays = Math.floor((t - b) / (1000 * 60 * 60 * 24));
+    document.getElementById('age-main').textContent = `${age} 歳`;
+    document.getElementById('age-sub').textContent = `生後 ${totalDays.toLocaleString()} 日 / 次の誕生日まであと ${diffDays} 日`;
+    res.classList.add('show');
+  }
+
+  // ── BMI計算 ──
+  function calcBMI() {
+    const h = parseFloat(document.getElementById('bmi-height').value);
+    const w = parseFloat(document.getElementById('bmi-weight').value);
+    const err = document.getElementById('bmi-error');
+    const res = document.getElementById('bmi-result');
+    if (!h || !w || h <= 0 || w <= 0) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    const bmi = w / ((h / 100) ** 2);
+    let category, color;
+    if (bmi < 18.5)      { category = '低体重（やせ型）'; color = '#06b6d4'; }
+    else if (bmi < 25)   { category = '普通体重'; color = '#10b981'; }
+    else if (bmi < 30)   { category = '肥満（1度）'; color = '#f59e0b'; }
+    else if (bmi < 35)   { category = '肥満（2度）'; color = '#f97316'; }
+    else                 { category = '肥満（3度以上）'; color = '#ef4444'; }
+
+    const ideal = 22 * ((h / 100) ** 2);
+    document.getElementById('bmi-main').textContent = `BMI: ${bmi.toFixed(1)}`;
+    document.getElementById('bmi-main').style.color = color;
+    document.getElementById('bmi-sub').textContent = `${category} ／ 標準体重: ${ideal.toFixed(1)} kg`;
+
+    // ゲージポインター位置（BMI 15〜40の範囲でマッピング）
+    const pct = Math.min(Math.max((bmi - 15) / 25 * 100, 0), 100);
+    document.getElementById('bmi-pointer').style.left = `${pct}%`;
+    res.classList.add('show');
+  }
+
+  // ── 割り勘計算 ──
+  function calcWarikan() {
+    const total = parseFloat(document.getElementById('wari-total').value);
+    const people = parseInt(document.getElementById('wari-people').value);
+    const roundType = document.getElementById('wari-round').value;
+    const err = document.getElementById('wari-error');
+    const res = document.getElementById('wari-result');
+    if (!total || !people || people < 1) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    let perPerson = total / people;
+    if (roundType === 'ceil')       perPerson = Math.ceil(perPerson);
+    else if (roundType === 'floor') perPerson = Math.floor(perPerson);
+    else                            perPerson = Math.round(perPerson);
+
+    const actualTotal = perPerson * people;
+    const diff = actualTotal - total;
+    document.getElementById('wari-main').textContent = `一人あたり ${perPerson.toLocaleString()} 円`;
+    document.getElementById('wari-sub').textContent = `合計 ${actualTotal.toLocaleString()} 円（${diff >= 0 ? '+' : ''}${diff} 円）`;
+
+    const table = document.getElementById('wari-table');
+    let rows = `<tr><th>人</th><th>支払額</th></tr>`;
+    for (let i = 1; i <= Math.min(people, 20); i++) {
+      rows += `<tr><td>${i} 人目</td><td>${perPerson.toLocaleString()} 円</td></tr>`;
+    }
+    if (people > 20) rows += `<tr><td colspan="2" style="color:var(--muted)">…他 ${people - 20} 人</td></tr>`;
+    table.innerHTML = rows;
+    res.classList.add('show');
+  }
+
+  // ── 文字数カウント ──
+  function countChars() {
+    const text = document.getElementById('chars-input').value;
+    const noSpace = text.replace(/[\s　]/g, '');
+    const words = text.trim() === '' ? 0 : text.trim().split(/[\s　]+/).length;
+    const lines = text === '' ? 0 : text.split('\n').length;
+    const bytes = new TextEncoder().encode(text).length;
+    const paras = text.trim() === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim()).length || 1;
+
+    document.getElementById('count-all').textContent = text.length.toLocaleString();
+    document.getElementById('count-nospace').textContent = noSpace.length.toLocaleString();
+    document.getElementById('count-words').textContent = words.toLocaleString();
+    document.getElementById('count-lines').textContent = lines.toLocaleString();
+    document.getElementById('count-bytes').textContent = bytes.toLocaleString();
+    document.getElementById('count-para').textContent = paras.toLocaleString();
+  }
+
+  // ── カウントダウン ──
+  let cdTimer = null;
+  function startCountdown() {
+    const dateVal = document.getElementById('cd-date').value;
+    const name = document.getElementById('cd-name').value || 'イベント';
+    const err = document.getElementById('cd-error');
+    const res = document.getElementById('cd-result');
+    if (!dateVal) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    document.getElementById('cd-title').textContent = `⏳ ${name} まで`;
+    res.classList.add('show');
+    if (cdTimer) clearInterval(cdTimer);
+
+    function update() {
+      const target = new Date(dateVal + 'T00:00:00');
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) {
+        document.getElementById('cd-days').textContent = '0';
+        document.getElementById('cd-hours').textContent = '0';
+        document.getElementById('cd-mins').textContent = '0';
+        document.getElementById('cd-secs').textContent = '0';
+        document.getElementById('cd-sub').textContent = '🎉 その日が来ました！';
+        clearInterval(cdTimer);
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      document.getElementById('cd-days').textContent = days;
+      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+      document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+      document.getElementById('cd-sub').textContent = `${new Date(dateVal).toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric', weekday:'short' })}`;
+    }
+    update();
+    cdTimer = setInterval(update, 1000);
+  }
+
+  // ── 消費税計算 ──
+  function calcTax() {
+    const amount = parseFloat(document.getElementById('tax-amount').value);
+    const rate = parseFloat(document.getElementById('tax-rate').value) / 100;
+    const type = document.getElementById('tax-type').value;
+    const resultsEl = document.getElementById('tax-results');
+    if (!amount || amount < 0) { resultsEl.style.display = 'none'; return; }
+
+    let excl, incl, tax;
+    if (type === 'excl') {
+      excl = amount;
+      tax = Math.floor(excl * rate);
+      incl = excl + tax;
+    } else {
+      incl = amount;
+      excl = Math.floor(incl / (1 + rate));
+      tax = incl - excl;
+    }
+
+    document.getElementById('tax-excl').textContent = excl.toLocaleString() + ' 円';
+    document.getElementById('tax-tax').textContent = tax.toLocaleString() + ' 円';
+    document.getElementById('tax-incl').textContent = incl.toLocaleString() + ' 円';
+    resultsEl.style.display = 'grid';
+  }
+</script>
+</body>
+</html>
