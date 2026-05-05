@@ -450,6 +450,11 @@
   <a href="#" data-tool="chars">📝 文字数</a>
   <a href="#" data-tool="countdown">⏳ カウントダウン</a>
   <a href="#" data-tool="tax">🧾 消費税</a>
+  <a href="#" data-tool="percent">📊 パーセント</a>
+  <a href="#" data-tool="loan">🏠 住宅ローン</a>
+  <a href="#" data-tool="time">⏱️ 時間計算</a>
+  <a href="#" data-tool="calorie">🔥 カロリー</a>
+  <a href="#" data-tool="savings">💰 貯金</a>
 </nav>
 
 <main>
@@ -654,6 +659,218 @@
     </div>
   </section>
 
+  <!-- パーセント計算 -->
+  <section class="tool-section" id="tool-percent">
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span>パーセント計算機</div>
+      <p class="card-desc">割引率・増減率・比率など、パーセントに関する計算をまとめました。</p>
+      <div class="input-group">
+        <label>計算の種類</label>
+        <select id="pct-type" onchange="calcPercent()">
+          <option value="of">○○の△△% はいくら？（例：1000円の8%）</option>
+          <option value="ratio">○○は△△の何%？（例：80は200の何%）</option>
+          <option value="off">○○円から△△%引きはいくら？</option>
+          <option value="change">○○から△△への増減率は？</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label id="pct-label1">元の数値</label>
+          <input type="number" id="pct-a" placeholder="1000" oninput="calcPercent()">
+        </div>
+        <div class="input-group">
+          <label id="pct-label2">パーセント（%）</label>
+          <input type="number" id="pct-b" placeholder="8" oninput="calcPercent()">
+        </div>
+      </div>
+      <div class="tax-results" id="pct-results" style="display:none;">
+        <div class="tax-item primary" style="grid-column:span 2;">
+          <div class="tax-num" id="pct-main">—</div>
+          <div class="tax-label" id="pct-label">結果</div>
+        </div>
+        <div class="tax-item">
+          <div class="tax-num" id="pct-sub1">—</div>
+          <div class="tax-label" id="pct-sublabel1">—</div>
+        </div>
+        <div class="tax-item">
+          <div class="tax-num" id="pct-sub2">—</div>
+          <div class="tax-label" id="pct-sublabel2">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 住宅ローン計算 -->
+  <section class="tool-section" id="tool-loan">
+    <div class="card">
+      <div class="card-title"><span class="icon">🏠</span>住宅ローン計算機</div>
+      <p class="card-desc">借入額・金利・返済期間から月々の返済額と総返済額を計算します。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>借入金額（万円）</label>
+          <input type="number" id="loan-amount" placeholder="3000" min="1">
+        </div>
+        <div class="input-group">
+          <label>年利（%）</label>
+          <input type="number" id="loan-rate" placeholder="1.5" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>返済期間（年）</label>
+          <input type="number" id="loan-years" placeholder="35" min="1" max="50">
+        </div>
+        <div class="input-group">
+          <label>返済方式</label>
+          <select id="loan-type">
+            <option value="equal">元利均等返済</option>
+            <option value="principal">元金均等返済</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="calcLoan()">計算する</button>
+      <div class="error-msg" id="loan-error">すべての項目を入力してください</div>
+      <div class="result-box" id="loan-result">
+        <div class="result-main" id="loan-monthly"></div>
+        <div class="result-sub" id="loan-sub"></div>
+        <div class="tax-results" style="margin-top:16px;">
+          <div class="tax-item">
+            <div class="tax-num" id="loan-total">—</div>
+            <div class="tax-label">総返済額</div>
+          </div>
+          <div class="tax-item">
+            <div class="tax-num" id="loan-interest">—</div>
+            <div class="tax-label">利息合計</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 時間計算 -->
+  <section class="tool-section" id="tool-time">
+    <div class="card">
+      <div class="card-title"><span class="icon">⏱️</span>時間計算機</div>
+      <p class="card-desc">2つの時刻の差、または時間の足し算・引き算を計算します。</p>
+      <div class="input-group">
+        <label>計算の種類</label>
+        <select id="time-type" onchange="renderTimeInputs()">
+          <option value="diff">2つの時刻の差を求める</option>
+          <option value="add">時刻に時間を足す・引く</option>
+          <option value="work">勤務時間を計算する</option>
+        </select>
+      </div>
+      <div id="time-inputs"></div>
+      <button class="btn btn-primary" onclick="calcTime()">計算する</button>
+      <div class="error-msg" id="time-error">時刻を正しく入力してください</div>
+      <div class="result-box" id="time-result">
+        <div class="result-main" id="time-main"></div>
+        <div class="result-sub" id="time-sub"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- カロリー計算 -->
+  <section class="tool-section" id="tool-calorie">
+    <div class="card">
+      <div class="card-title"><span class="icon">🔥</span>カロリー計算機</div>
+      <p class="card-desc">基礎代謝量（BMR）と1日の消費カロリー目安を計算します。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>性別</label>
+          <select id="cal-gender">
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>年齢</label>
+          <input type="number" id="cal-age" placeholder="30" min="1" max="120">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>身長（cm）</label>
+          <input type="number" id="cal-height" placeholder="170" min="50" max="250">
+        </div>
+        <div class="input-group">
+          <label>体重（kg）</label>
+          <input type="number" id="cal-weight" placeholder="65" min="1" max="500" step="0.1">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>活動レベル</label>
+        <select id="cal-activity">
+          <option value="1.2">ほぼ座り仕事・運動なし</option>
+          <option value="1.375">軽い運動（週1〜3回）</option>
+          <option value="1.55" selected>適度な運動（週3〜5回）</option>
+          <option value="1.725">激しい運動（週6〜7回）</option>
+          <option value="1.9">アスリート・肉体労働</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="calcCalorie()">計算する</button>
+      <div class="error-msg" id="cal-error">すべての項目を入力してください</div>
+      <div class="result-box" id="cal-result">
+        <div class="result-main" id="cal-main"></div>
+        <div class="result-sub" id="cal-sub"></div>
+        <div class="tax-results" style="margin-top:16px;">
+          <div class="tax-item">
+            <div class="tax-num" id="cal-bmr">—</div>
+            <div class="tax-label">基礎代謝（BMR）</div>
+          </div>
+          <div class="tax-item">
+            <div class="tax-num" id="cal-diet">—</div>
+            <div class="tax-label">ダイエット目安</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 貯金シミュレーター -->
+  <section class="tool-section" id="tool-savings">
+    <div class="card">
+      <div class="card-title"><span class="icon">💰</span>貯金シミュレーター</div>
+      <p class="card-desc">毎月の積立額・年利・期間から将来の貯蓄額をシミュレーションします。</p>
+      <div class="input-row">
+        <div class="input-group">
+          <label>初期金額（円）</label>
+          <input type="number" id="sav-init" placeholder="0" min="0">
+        </div>
+        <div class="input-group">
+          <label>毎月の積立額（円）</label>
+          <input type="number" id="sav-monthly" placeholder="30000" min="0">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>年利（%）</label>
+          <input type="number" id="sav-rate" placeholder="0.1" min="0" step="0.01">
+        </div>
+        <div class="input-group">
+          <label>積立期間（年）</label>
+          <input type="number" id="sav-years" placeholder="10" min="1" max="50">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="calcSavings()">計算する</button>
+      <div class="error-msg" id="sav-error">積立額と期間を入力してください</div>
+      <div class="result-box" id="sav-result">
+        <div class="result-main" id="sav-main"></div>
+        <div class="result-sub" id="sav-sub"></div>
+        <div class="tax-results" style="margin-top:16px;">
+          <div class="tax-item">
+            <div class="tax-num" id="sav-principal">—</div>
+            <div class="tax-label">元本合計</div>
+          </div>
+          <div class="tax-item">
+            <div class="tax-num" id="sav-interest">—</div>
+            <div class="tax-label">利息合計</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="ad-placeholder">広告スペース（Google AdSense）</div>
 
 </main>
@@ -681,6 +898,7 @@
   document.getElementById('age-target').value = today;
   document.getElementById('age-birth').max = today;
   document.getElementById('cd-date').min = today;
+  renderTimeInputs();
 
   // ── 年齢計算 ──
   function calcAge() {
@@ -821,6 +1039,219 @@
     }
     update();
     cdTimer = setInterval(update, 1000);
+  }
+
+  // ── パーセント計算 ──
+  function calcPercent() {
+    const type = document.getElementById('pct-type').value;
+    const a = parseFloat(document.getElementById('pct-a').value);
+    const b = parseFloat(document.getElementById('pct-b').value);
+    const res = document.getElementById('pct-results');
+    const l1 = document.getElementById('pct-label1');
+    const l2 = document.getElementById('pct-label2');
+
+    const labels = {
+      of:     ['元の数値', 'パーセント（%）'],
+      ratio:  ['元の数値（分子）', '比較する数値（分母）'],
+      off:    ['元の金額（円）', '割引率（%）'],
+      change: ['変化前の数値', '変化後の数値'],
+    };
+    l1.textContent = labels[type][0];
+    l2.textContent = labels[type][1];
+
+    if (isNaN(a) || isNaN(b)) { res.style.display = 'none'; return; }
+
+    let main, label, s1, sl1, s2, sl2;
+    if (type === 'of') {
+      const result = a * b / 100;
+      main = result.toLocaleString(undefined, {maximumFractionDigits:2});
+      label = `${a.toLocaleString()} の ${b}% は ${main}`;
+      s1 = (a - result).toLocaleString(undefined, {maximumFractionDigits:2}); sl1 = '残り';
+      s2 = result.toLocaleString(undefined, {maximumFractionDigits:2}); sl2 = '%分の金額';
+    } else if (type === 'ratio') {
+      const result = (a / b * 100);
+      main = result.toFixed(2) + '%';
+      label = `${a} は ${b} の ${main}`;
+      s1 = a.toLocaleString(); sl1 = '分子';
+      s2 = b.toLocaleString(); sl2 = '分母';
+    } else if (type === 'off') {
+      const disc = a * b / 100;
+      const after = a - disc;
+      main = after.toLocaleString(undefined, {maximumFractionDigits:0}) + ' 円';
+      label = `${b}%引き後の金額`;
+      s1 = disc.toLocaleString(undefined, {maximumFractionDigits:0}) + ' 円'; sl1 = '割引額';
+      s2 = a.toLocaleString() + ' 円'; sl2 = '元の金額';
+    } else {
+      const rate = (b - a) / a * 100;
+      main = (rate >= 0 ? '+' : '') + rate.toFixed(2) + '%';
+      label = `${a} → ${b} への変化率`;
+      s1 = (b - a >= 0 ? '+' : '') + (b - a).toLocaleString(undefined, {maximumFractionDigits:2}); sl1 = '差分';
+      s2 = b.toLocaleString(); sl2 = '変化後';
+    }
+    document.getElementById('pct-main').textContent = main;
+    document.getElementById('pct-label').textContent = label;
+    document.getElementById('pct-sub1').textContent = s1;
+    document.getElementById('pct-sublabel1').textContent = sl1;
+    document.getElementById('pct-sub2').textContent = s2;
+    document.getElementById('pct-sublabel2').textContent = sl2;
+    res.style.display = 'grid';
+  }
+
+  // ── 住宅ローン計算 ──
+  function calcLoan() {
+    const amount = parseFloat(document.getElementById('loan-amount').value) * 10000;
+    const annualRate = parseFloat(document.getElementById('loan-rate').value);
+    const years = parseInt(document.getElementById('loan-years').value);
+    const type = document.getElementById('loan-type').value;
+    const err = document.getElementById('loan-error');
+    const res = document.getElementById('loan-result');
+    if (!amount || isNaN(annualRate) || !years) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    const months = years * 12;
+    let monthly, totalPayment;
+    if (annualRate === 0) {
+      monthly = amount / months;
+      totalPayment = amount;
+    } else if (type === 'equal') {
+      const r = annualRate / 100 / 12;
+      monthly = amount * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+      totalPayment = monthly * months;
+    } else {
+      const r = annualRate / 100 / 12;
+      const principalPerMonth = amount / months;
+      let balance = amount;
+      totalPayment = 0;
+      for (let i = 0; i < months; i++) {
+        totalPayment += principalPerMonth + balance * r;
+        balance -= principalPerMonth;
+      }
+      monthly = totalPayment / months;
+    }
+
+    const interest = totalPayment - amount;
+    document.getElementById('loan-monthly').textContent = `月々 ${Math.ceil(monthly).toLocaleString()} 円`;
+    document.getElementById('loan-sub').textContent = `借入 ${(amount/10000).toLocaleString()}万円 / 年利 ${annualRate}% / ${years}年`;
+    document.getElementById('loan-total').textContent = Math.round(totalPayment/10000).toLocaleString() + ' 万円';
+    document.getElementById('loan-interest').textContent = Math.round(interest/10000).toLocaleString() + ' 万円';
+    res.classList.add('show');
+  }
+
+  // ── 時間計算 ──
+  function renderTimeInputs() {
+    const type = document.getElementById('time-type').value;
+    const container = document.getElementById('time-inputs');
+    if (type === 'diff' || type === 'work') {
+      container.innerHTML = `
+        <div class="input-row">
+          <div class="input-group"><label>${type === 'work' ? '出勤時刻' : '開始時刻'}</label><input type="time" id="time-a" value="09:00"></div>
+          <div class="input-group"><label>${type === 'work' ? '退勤時刻' : '終了時刻'}</label><input type="time" id="time-b" value="18:00"></div>
+        </div>
+        ${type === 'work' ? '<div class="input-group"><label>休憩時間（分）</label><input type="number" id="time-break" value="60" min="0"></div>' : ''}
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="input-row">
+          <div class="input-group"><label>基準時刻</label><input type="time" id="time-a" value="09:00"></div>
+          <div class="input-group"><label>加算・減算（分）</label><input type="number" id="time-delta" placeholder="90（マイナスも可）"></div>
+        </div>
+      `;
+    }
+    document.getElementById('time-result').classList.remove('show');
+  }
+
+  function calcTime() {
+    const type = document.getElementById('time-type').value;
+    const err = document.getElementById('time-error');
+    const res = document.getElementById('time-result');
+
+    if (type === 'diff' || type === 'work') {
+      const a = document.getElementById('time-a')?.value;
+      const b = document.getElementById('time-b')?.value;
+      if (!a || !b) { err.classList.add('show'); res.classList.remove('show'); return; }
+      err.classList.remove('show');
+      const [ah, am] = a.split(':').map(Number);
+      let [bh, bm] = b.split(':').map(Number);
+      let diffMin = (bh * 60 + bm) - (ah * 60 + am);
+      if (diffMin < 0) diffMin += 24 * 60;
+      if (type === 'work') {
+        const brk = parseInt(document.getElementById('time-break')?.value || '0');
+        diffMin -= brk;
+      }
+      const h = Math.floor(Math.abs(diffMin) / 60);
+      const m = Math.abs(diffMin) % 60;
+      document.getElementById('time-main').textContent = `${h} 時間 ${m} 分`;
+      document.getElementById('time-sub').textContent = type === 'work'
+        ? `実働時間（休憩除く）`
+        : `${a} ～ ${b} の差`;
+    } else {
+      const a = document.getElementById('time-a')?.value;
+      const delta = parseInt(document.getElementById('time-delta')?.value);
+      if (!a || isNaN(delta)) { err.classList.add('show'); res.classList.remove('show'); return; }
+      err.classList.remove('show');
+      const [ah, am] = a.split(':').map(Number);
+      let total = ah * 60 + am + delta;
+      total = ((total % 1440) + 1440) % 1440;
+      const rh = String(Math.floor(total / 60)).padStart(2, '0');
+      const rm = String(total % 60).padStart(2, '0');
+      document.getElementById('time-main').textContent = `${rh}:${rm}`;
+      document.getElementById('time-sub').textContent = `${a} に ${delta >= 0 ? '+' : ''}${delta}分 した時刻`;
+    }
+    res.classList.add('show');
+  }
+
+  // ── カロリー計算 ──
+  function calcCalorie() {
+    const gender = document.getElementById('cal-gender').value;
+    const age = parseFloat(document.getElementById('cal-age').value);
+    const h = parseFloat(document.getElementById('cal-height').value);
+    const w = parseFloat(document.getElementById('cal-weight').value);
+    const activity = parseFloat(document.getElementById('cal-activity').value);
+    const err = document.getElementById('cal-error');
+    const res = document.getElementById('cal-result');
+    if (!age || !h || !w) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    const bmr = gender === 'male'
+      ? 88.362 + 13.397 * w + 4.799 * h - 5.677 * age
+      : 447.593 + 9.247 * w + 3.098 * h - 4.330 * age;
+    const tdee = bmr * activity;
+    const diet = tdee - 500;
+
+    document.getElementById('cal-main').textContent = `1日 ${Math.round(tdee).toLocaleString()} kcal`;
+    document.getElementById('cal-sub').textContent = `推定1日消費カロリー（Mifflin-St Jeor 式）`;
+    document.getElementById('cal-bmr').textContent = Math.round(bmr).toLocaleString() + ' kcal';
+    document.getElementById('cal-diet').textContent = Math.round(diet).toLocaleString() + ' kcal';
+    res.classList.add('show');
+  }
+
+  // ── 貯金シミュレーター ──
+  function calcSavings() {
+    const init = parseFloat(document.getElementById('sav-init').value) || 0;
+    const monthly = parseFloat(document.getElementById('sav-monthly').value);
+    const annualRate = parseFloat(document.getElementById('sav-rate').value) || 0;
+    const years = parseInt(document.getElementById('sav-years').value);
+    const err = document.getElementById('sav-error');
+    const res = document.getElementById('sav-result');
+    if (isNaN(monthly) || !years) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+
+    const r = annualRate / 100 / 12;
+    const months = years * 12;
+    let total;
+    if (r === 0) {
+      total = init + monthly * months;
+    } else {
+      total = init * Math.pow(1 + r, months) + monthly * (Math.pow(1 + r, months) - 1) / r;
+    }
+    const principal = init + monthly * months;
+    const interest = total - principal;
+
+    document.getElementById('sav-main').textContent = `${Math.round(total).toLocaleString()} 円`;
+    document.getElementById('sav-sub').textContent = `${years}年後の貯蓄額（年利 ${annualRate}%）`;
+    document.getElementById('sav-principal').textContent = Math.round(principal).toLocaleString() + ' 円';
+    document.getElementById('sav-interest').textContent = Math.round(interest).toLocaleString() + ' 円';
+    res.classList.add('show');
   }
 
   // ── 消費税計算 ──
