@@ -9,19 +9,21 @@
      crossorigin="anonymous"></script>
   <style>
     :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --secondary: #06b6d4;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #1e293b;
-      --muted: #64748b;
-      --border: #e2e8f0;
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --accent: #06b6d4;
+      --pink: #ec4899;
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --card: rgba(255,255,255,0.05);
+      --card-border: rgba(255,255,255,0.1);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
       --success: #10b981;
       --warning: #f59e0b;
-      --danger: #ef4444;
-      --radius: 16px;
-      --shadow: 0 4px 24px rgba(99,102,241,0.08);
+      --danger: #f43f5e;
+      --radius: 20px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,95 +33,164 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      min-height: 100vh;
     }
 
-    /* ヘッダー */
+    /* ── ヘッダー ── */
     header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: white;
+      position: relative;
+      overflow: hidden;
+      padding: 56px 24px 48px;
       text-align: center;
-      padding: 48px 24px 40px;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0a1628 100%);
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 40%, rgba(124,58,237,0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 60%, rgba(6,182,212,0.2) 0%, transparent 60%);
+      animation: aurora 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes aurora {
+      0%   { transform: translate(0,0) scale(1); }
+      100% { transform: translate(3%,3%) scale(1.05); }
+    }
+
+    header .inner { position: relative; z-index: 1; }
+
+    .badge {
+      display: inline-block;
+      background: rgba(124,58,237,0.3);
+      border: 1px solid rgba(124,58,237,0.6);
+      color: var(--primary-light);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
     }
 
     header h1 {
-      font-size: clamp(1.8rem, 5vw, 2.8rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 0%, var(--primary-light) 50%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
     }
 
     header p {
-      margin-top: 8px;
+      margin-top: 12px;
+      color: var(--muted);
       font-size: 1rem;
-      opacity: 0.85;
+      max-width: 480px;
+      margin-inline: auto;
     }
 
-    /* ナビゲーション */
+    /* ── ナビゲーション ── */
     nav {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,15,26,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 12px 16px;
       overflow-x: auto;
       white-space: nowrap;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+
+    .nav-inner {
+      display: inline-flex;
+      gap: 6px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50px;
+      padding: 5px;
     }
 
     nav a {
-      display: inline-block;
-      padding: 14px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border-radius: 50px;
       color: var(--muted);
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.2s;
-      border-bottom: 3px solid transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
     }
 
-    nav a:hover, nav a.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
+    nav a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    nav a.active {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 4px 14px rgba(124,58,237,0.4);
     }
 
-    /* メインレイアウト */
+    /* ── メイン ── */
     main {
-      max-width: 800px;
+      max-width: 720px;
       margin: 0 auto;
-      padding: 32px 16px 80px;
+      padding: 32px 16px 100px;
     }
 
-    /* ツールカード */
-    .tool-section {
-      display: none;
-    }
-
+    .tool-section { display: none; }
     .tool-section.active {
       display: block;
-      animation: fadeIn 0.3s ease;
+      animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── カード ── */
     .card {
       background: var(--card);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
       padding: 32px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.5), rgba(6,182,212,0.5), transparent);
     }
 
     .card-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 10px;
+      color: var(--text);
     }
 
     .card-title .icon {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
+      filter: drop-shadow(0 0 8px rgba(124,58,237,0.6));
     }
 
     .card-desc {
@@ -128,297 +199,311 @@
       margin-bottom: 24px;
     }
 
-    /* フォーム */
+    /* ── フォーム ── */
     label {
       display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.78rem;
+      font-weight: 700;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
     }
 
     input[type="date"],
     input[type="number"],
     input[type="text"],
+    input[type="time"],
     textarea,
     select {
       width: 100%;
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      border-radius: 10px;
+      padding: 13px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
       font-size: 1rem;
       font-family: inherit;
-      background: var(--bg);
       color: var(--text);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.2s;
       outline: none;
+      -webkit-appearance: none;
     }
 
     input:focus, textarea:focus, select:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+      background: rgba(124,58,237,0.08);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
+    select option { background: #1a1a2e; }
+    textarea { resize: vertical; min-height: 120px; }
 
     .input-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: 14px;
+      margin-bottom: 14px;
     }
+    @media (max-width: 480px) { .input-row { grid-template-columns: 1fr; } }
 
-    @media (max-width: 480px) {
-      .input-row { grid-template-columns: 1fr; }
-    }
+    .input-group { margin-bottom: 14px; }
 
-    .input-group {
-      margin-bottom: 16px;
-    }
-
-    /* ボタン */
+    /* ── ボタン ── */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 28px;
+      padding: 14px 28px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
       font-family: inherit;
       cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: all 0.2s;
     }
-
-    .btn:active { transform: scale(0.97); }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      box-shadow: 0 4px 12px rgba(99,102,241,0.3);
       width: 100%;
       margin-top: 8px;
-    }
-
-    .btn-primary:hover {
-      box-shadow: 0 6px 20px rgba(99,102,241,0.4);
-    }
-
-    .btn-danger {
-      background: var(--danger);
+      background: linear-gradient(135deg, var(--primary), #5b21b6);
       color: white;
-      padding: 8px 16px;
-      font-size: 0.85rem;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+      position: relative;
+      overflow: hidden;
     }
 
-    /* 結果表示 */
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.5); }
+    .btn-primary:hover::after { opacity: 1; }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ── 結果 ── */
     .result-box {
-      background: linear-gradient(135deg, #f0f4ff, #e8f4f8);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 20px 24px;
-      margin-top: 20px;
       display: none;
+      margin-top: 20px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 16px;
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .result-box.show { display: block; animation: fadeIn 0.3s ease; }
+    .result-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .result-box.show { display: block; animation: slideUp 0.3s ease; }
 
     .result-main {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--primary);
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .result-sub {
       color: var(--muted);
       font-size: 0.9rem;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
-    /* BMIゲージ */
-    .bmi-gauge {
+    /* ── グリッド結果 ── */
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
       margin-top: 16px;
     }
 
+    .result-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .result-item.span2 { grid-column: span 2; }
+
+    .result-item.highlight {
+      background: rgba(124,58,237,0.15);
+      border-color: rgba(124,58,237,0.4);
+    }
+
+    .result-num {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary-light);
+    }
+
+    .result-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── BMIゲージ ── */
+    .bmi-gauge { margin-top: 16px; }
+
     .bmi-bar {
-      height: 12px;
-      border-radius: 6px;
-      background: linear-gradient(to right, #06b6d4, #10b981, #f59e0b, #ef4444);
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #06b6d4 0%, #10b981 35%, #f59e0b 65%, #ef4444 100%);
       position: relative;
-      margin: 8px 0;
+      margin: 10px 0 6px;
     }
 
     .bmi-pointer {
       position: absolute;
-      top: -4px;
-      width: 20px;
-      height: 20px;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
       background: white;
-      border: 3px solid var(--text);
+      border: 3px solid var(--bg);
       border-radius: 50%;
-      transform: translateX(-50%);
-      transition: left 0.5s ease;
+      box-shadow: 0 0 0 2px white, 0 4px 10px rgba(0,0,0,0.5);
+      transition: left 0.6s cubic-bezier(0.34,1.56,0.64,1);
     }
 
     .bmi-labels {
       display: flex;
       justify-content: space-between;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--muted);
     }
 
-    /* 割り勘テーブル */
-    .warikan-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 16px;
-    }
-
-    .warikan-table th, .warikan-table td {
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.95rem;
-    }
-
-    .warikan-table th {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      background: var(--bg);
-    }
-
-    .warikan-table tr:last-child td { border-bottom: none; }
-
-    .warikan-total {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    /* 文字数カウンター */
+    /* ── 文字数グリッド ── */
     .count-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 10px;
       margin-top: 16px;
     }
 
-    @media (max-width: 400px) {
-      .count-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    @media (max-width: 400px) { .count-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .count-item {
-      background: var(--bg);
-      border: 2px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
-      padding: 16px;
+      padding: 16px 8px;
       text-align: center;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
 
     .count-item.highlight {
-      border-color: var(--primary);
-      background: #f0f4ff;
+      background: rgba(124,58,237,0.15);
+      border-color: rgba(124,58,237,0.4);
     }
 
     .count-num {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--primary);
+      font-size: 1.7rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .count-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
-    /* カウントダウン */
+    /* ── カウントダウン ── */
     .countdown-display {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: 10px;
       margin-top: 16px;
     }
 
-    @media (max-width: 400px) {
-      .countdown-display { grid-template-columns: repeat(2, 1fr); }
-    }
+    @media (max-width: 400px) { .countdown-display { grid-template-columns: repeat(2, 1fr); } }
 
     .countdown-unit {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      border-radius: 12px;
-      padding: 20px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 18px 10px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .countdown-unit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.05));
     }
 
     .countdown-num {
       font-size: 2rem;
-      font-weight: 800;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
     }
 
     .countdown-label {
-      font-size: 0.75rem;
-      opacity: 0.8;
+      font-size: 0.72rem;
+      color: var(--muted);
       margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      position: relative;
     }
 
-    /* 消費税計算 */
-    .tax-results {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    /* ── 割り勘テーブル ── */
+    .warikan-table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 16px;
+      font-size: 0.9rem;
     }
 
-    .tax-item {
-      background: var(--bg);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
+    .warikan-table th, .warikan-table td {
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
-    .tax-item.primary {
-      border-color: var(--primary);
-      background: #f0f4ff;
-    }
-
-    .tax-num {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    .tax-label {
-      font-size: 0.8rem;
+    .warikan-table th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: var(--muted);
-      margin-top: 2px;
     }
 
-    /* フッター */
-    footer {
-      text-align: center;
-      padding: 32px 16px;
-      color: var(--muted);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--border);
-    }
+    .warikan-table tr:last-child td { border-bottom: none; }
 
-    /* AdSense プレースホルダー */
+    /* ── AdSense ── */
     .ad-placeholder {
-      background: var(--border);
-      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
       padding: 20px;
       text-align: center;
       color: var(--muted);
@@ -426,40 +511,57 @@
       margin: 16px 0;
     }
 
-    /* エラー */
+    /* ── エラー ── */
     .error-msg {
       color: var(--danger);
       font-size: 0.85rem;
       margin-top: 8px;
       display: none;
     }
-    .error-msg.show { display: block; }
+    .error-msg.show { display: flex; align-items: center; gap: 6px; }
+    .error-msg.show::before { content: '⚠'; }
+
+    /* ── フッター ── */
+    footer {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    footer a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--primary-light); }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>⚡ 計算ツール集</h1>
-  <p>日常で使える便利なツールをまとめました</p>
+  <div class="inner">
+    <div class="badge">✦ FREE TOOLS</div>
+    <h1>計算ツール集</h1>
+    <p>日常で使える便利なツールをまとめました。登録不要・完全無料。</p>
+  </div>
 </header>
 
 <nav id="nav">
-  <a href="#" class="active" data-tool="age">🎂 年齢計算</a>
-  <a href="#" data-tool="bmi">💪 BMI計算</a>
-  <a href="#" data-tool="warikan">🍻 割り勘</a>
-  <a href="#" data-tool="chars">📝 文字数</a>
-  <a href="#" data-tool="countdown">⏳ カウントダウン</a>
-  <a href="#" data-tool="tax">🧾 消費税</a>
-  <a href="#" data-tool="percent">📊 パーセント</a>
-  <a href="#" data-tool="loan">🏠 住宅ローン</a>
-  <a href="#" data-tool="time">⏱️ 時間計算</a>
-  <a href="#" data-tool="calorie">🔥 カロリー</a>
-  <a href="#" data-tool="savings">💰 貯金</a>
+  <div class="nav-inner">
+    <a href="#" class="active" data-tool="age">🎂 年齢</a>
+    <a href="#" data-tool="bmi">💪 BMI</a>
+    <a href="#" data-tool="warikan">🍻 割り勘</a>
+    <a href="#" data-tool="chars">📝 文字数</a>
+    <a href="#" data-tool="countdown">⏳ カウント</a>
+    <a href="#" data-tool="tax">🧾 消費税</a>
+    <a href="#" data-tool="percent">📊 パーセント</a>
+    <a href="#" data-tool="loan">🏠 ローン</a>
+    <a href="#" data-tool="time">⏱️ 時間</a>
+    <a href="#" data-tool="calorie">🔥 カロリー</a>
+    <a href="#" data-tool="savings">💰 貯金</a>
+  </div>
 </nav>
 
 <main>
 
-  <!-- AdSense（申請後ここにコードを貼る） -->
   <div class="ad-placeholder">広告スペース（Google AdSense）</div>
 
   <!-- 年齢計算 -->
@@ -475,7 +577,7 @@
         <label>基準日（省略可：デフォルトは今日）</label>
         <input type="date" id="age-target">
       </div>
-      <button class="btn btn-primary" onclick="calcAge()">計算する</button>
+      <button class="btn btn-primary" onclick="calcAge()">計算する →</button>
       <div class="error-msg" id="age-error">生年月日を入力してください</div>
       <div class="result-box" id="age-result">
         <div class="result-main" id="age-main"></div>
@@ -499,15 +601,13 @@
           <input type="number" id="bmi-weight" placeholder="65" min="1" max="500" step="0.1">
         </div>
       </div>
-      <button class="btn btn-primary" onclick="calcBMI()">計算する</button>
+      <button class="btn btn-primary" onclick="calcBMI()">計算する →</button>
       <div class="error-msg" id="bmi-error">身長と体重を入力してください</div>
       <div class="result-box" id="bmi-result">
         <div class="result-main" id="bmi-main"></div>
         <div class="result-sub" id="bmi-sub"></div>
         <div class="bmi-gauge">
-          <div class="bmi-bar">
-            <div class="bmi-pointer" id="bmi-pointer"></div>
-          </div>
+          <div class="bmi-bar"><div class="bmi-pointer" id="bmi-pointer"></div></div>
           <div class="bmi-labels">
             <span>低体重</span><span>普通</span><span>過体重</span><span>肥満</span>
           </div>
@@ -539,7 +639,7 @@
           <option value="round">四捨五入</option>
         </select>
       </div>
-      <button class="btn btn-primary" onclick="calcWarikan()">計算する</button>
+      <button class="btn btn-primary" onclick="calcWarikan()">計算する →</button>
       <div class="error-msg" id="wari-error">合計金額と人数を入力してください</div>
       <div class="result-box" id="wari-result">
         <div class="result-main" id="wari-main"></div>
@@ -558,7 +658,7 @@
         <label>テキストを入力</label>
         <textarea id="chars-input" placeholder="ここにテキストを貼り付けてください..." oninput="countChars()"></textarea>
       </div>
-      <div class="count-grid" id="count-grid">
+      <div class="count-grid">
         <div class="count-item highlight">
           <div class="count-num" id="count-all">0</div>
           <div class="count-label">全文字数</div>
@@ -602,15 +702,15 @@
           <input type="date" id="cd-date">
         </div>
       </div>
-      <button class="btn btn-primary" onclick="startCountdown()">カウントダウン開始</button>
+      <button class="btn btn-primary" onclick="startCountdown()">カウントダウン開始 →</button>
       <div class="error-msg" id="cd-error">目標日を入力してください</div>
       <div class="result-box" id="cd-result">
-        <div class="result-sub" id="cd-title" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;"></div>
-        <div class="countdown-display" id="cd-display">
-          <div class="countdown-unit"><div class="countdown-num" id="cd-days">0</div><div class="countdown-label">日</div></div>
-          <div class="countdown-unit"><div class="countdown-num" id="cd-hours">0</div><div class="countdown-label">時間</div></div>
-          <div class="countdown-unit"><div class="countdown-num" id="cd-mins">0</div><div class="countdown-label">分</div></div>
-          <div class="countdown-unit"><div class="countdown-num" id="cd-secs">0</div><div class="countdown-label">秒</div></div>
+        <div class="result-sub" id="cd-title" style="font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:10px;"></div>
+        <div class="countdown-display">
+          <div class="countdown-unit"><div class="countdown-num" id="cd-days">0</div><div class="countdown-label">Day</div></div>
+          <div class="countdown-unit"><div class="countdown-num" id="cd-hours">0</div><div class="countdown-label">Hour</div></div>
+          <div class="countdown-unit"><div class="countdown-num" id="cd-mins">0</div><div class="countdown-label">Min</div></div>
+          <div class="countdown-unit"><div class="countdown-num" id="cd-secs">0</div><div class="countdown-label">Sec</div></div>
         </div>
         <div class="result-sub" id="cd-sub" style="margin-top:12px;"></div>
       </div>
@@ -642,19 +742,10 @@
           <option value="incl">税込価格</option>
         </select>
       </div>
-      <div class="tax-results" id="tax-results" style="display:none;">
-        <div class="tax-item">
-          <div class="tax-num" id="tax-excl">—</div>
-          <div class="tax-label">税抜価格</div>
-        </div>
-        <div class="tax-item">
-          <div class="tax-num" id="tax-tax">—</div>
-          <div class="tax-label">消費税額</div>
-        </div>
-        <div class="tax-item primary" style="grid-column:span 2;">
-          <div class="tax-num" id="tax-incl">—</div>
-          <div class="tax-label">税込価格</div>
-        </div>
+      <div class="result-grid" id="tax-results" style="display:none;margin-top:16px;">
+        <div class="result-item"><div class="result-num" id="tax-excl">—</div><div class="result-label">税抜価格</div></div>
+        <div class="result-item"><div class="result-num" id="tax-tax">—</div><div class="result-label">消費税額</div></div>
+        <div class="result-item highlight span2"><div class="result-num" id="tax-incl">—</div><div class="result-label">税込価格</div></div>
       </div>
     </div>
   </section>
@@ -667,8 +758,8 @@
       <div class="input-group">
         <label>計算の種類</label>
         <select id="pct-type" onchange="calcPercent()">
-          <option value="of">○○の△△% はいくら？（例：1000円の8%）</option>
-          <option value="ratio">○○は△△の何%？（例：80は200の何%）</option>
+          <option value="of">○○の△△% はいくら？</option>
+          <option value="ratio">○○は△△の何%？</option>
           <option value="off">○○円から△△%引きはいくら？</option>
           <option value="change">○○から△△への増減率は？</option>
         </select>
@@ -683,19 +774,10 @@
           <input type="number" id="pct-b" placeholder="8" oninput="calcPercent()">
         </div>
       </div>
-      <div class="tax-results" id="pct-results" style="display:none;">
-        <div class="tax-item primary" style="grid-column:span 2;">
-          <div class="tax-num" id="pct-main">—</div>
-          <div class="tax-label" id="pct-label">結果</div>
-        </div>
-        <div class="tax-item">
-          <div class="tax-num" id="pct-sub1">—</div>
-          <div class="tax-label" id="pct-sublabel1">—</div>
-        </div>
-        <div class="tax-item">
-          <div class="tax-num" id="pct-sub2">—</div>
-          <div class="tax-label" id="pct-sublabel2">—</div>
-        </div>
+      <div class="result-grid" id="pct-results" style="display:none;margin-top:16px;">
+        <div class="result-item highlight span2"><div class="result-num" id="pct-main">—</div><div class="result-label" id="pct-label">結果</div></div>
+        <div class="result-item"><div class="result-num" id="pct-sub1">—</div><div class="result-label" id="pct-sublabel1">—</div></div>
+        <div class="result-item"><div class="result-num" id="pct-sub2">—</div><div class="result-label" id="pct-sublabel2">—</div></div>
       </div>
     </div>
   </section>
@@ -728,20 +810,14 @@
           </select>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="calcLoan()">計算する</button>
+      <button class="btn btn-primary" onclick="calcLoan()">計算する →</button>
       <div class="error-msg" id="loan-error">すべての項目を入力してください</div>
       <div class="result-box" id="loan-result">
         <div class="result-main" id="loan-monthly"></div>
         <div class="result-sub" id="loan-sub"></div>
-        <div class="tax-results" style="margin-top:16px;">
-          <div class="tax-item">
-            <div class="tax-num" id="loan-total">—</div>
-            <div class="tax-label">総返済額</div>
-          </div>
-          <div class="tax-item">
-            <div class="tax-num" id="loan-interest">—</div>
-            <div class="tax-label">利息合計</div>
-          </div>
+        <div class="result-grid" style="margin-top:16px;">
+          <div class="result-item"><div class="result-num" id="loan-total">—</div><div class="result-label">総返済額</div></div>
+          <div class="result-item"><div class="result-num" id="loan-interest">—</div><div class="result-label">利息合計</div></div>
         </div>
       </div>
     </div>
@@ -761,7 +837,7 @@
         </select>
       </div>
       <div id="time-inputs"></div>
-      <button class="btn btn-primary" onclick="calcTime()">計算する</button>
+      <button class="btn btn-primary" onclick="calcTime()">計算する →</button>
       <div class="error-msg" id="time-error">時刻を正しく入力してください</div>
       <div class="result-box" id="time-result">
         <div class="result-main" id="time-main"></div>
@@ -808,20 +884,14 @@
           <option value="1.9">アスリート・肉体労働</option>
         </select>
       </div>
-      <button class="btn btn-primary" onclick="calcCalorie()">計算する</button>
+      <button class="btn btn-primary" onclick="calcCalorie()">計算する →</button>
       <div class="error-msg" id="cal-error">すべての項目を入力してください</div>
       <div class="result-box" id="cal-result">
         <div class="result-main" id="cal-main"></div>
         <div class="result-sub" id="cal-sub"></div>
-        <div class="tax-results" style="margin-top:16px;">
-          <div class="tax-item">
-            <div class="tax-num" id="cal-bmr">—</div>
-            <div class="tax-label">基礎代謝（BMR）</div>
-          </div>
-          <div class="tax-item">
-            <div class="tax-num" id="cal-diet">—</div>
-            <div class="tax-label">ダイエット目安</div>
-          </div>
+        <div class="result-grid" style="margin-top:16px;">
+          <div class="result-item"><div class="result-num" id="cal-bmr">—</div><div class="result-label">基礎代謝（BMR）</div></div>
+          <div class="result-item"><div class="result-num" id="cal-diet">—</div><div class="result-label">ダイエット目安</div></div>
         </div>
       </div>
     </div>
@@ -852,20 +922,14 @@
           <input type="number" id="sav-years" placeholder="10" min="1" max="50">
         </div>
       </div>
-      <button class="btn btn-primary" onclick="calcSavings()">計算する</button>
+      <button class="btn btn-primary" onclick="calcSavings()">計算する →</button>
       <div class="error-msg" id="sav-error">積立額と期間を入力してください</div>
       <div class="result-box" id="sav-result">
         <div class="result-main" id="sav-main"></div>
         <div class="result-sub" id="sav-sub"></div>
-        <div class="tax-results" style="margin-top:16px;">
-          <div class="tax-item">
-            <div class="tax-num" id="sav-principal">—</div>
-            <div class="tax-label">元本合計</div>
-          </div>
-          <div class="tax-item">
-            <div class="tax-num" id="sav-interest">—</div>
-            <div class="tax-label">利息合計</div>
-          </div>
+        <div class="result-grid" style="margin-top:16px;">
+          <div class="result-item"><div class="result-num" id="sav-principal">—</div><div class="result-label">元本合計</div></div>
+          <div class="result-item"><div class="result-num" id="sav-interest">—</div><div class="result-label">利息合計</div></div>
         </div>
       </div>
     </div>
@@ -876,7 +940,7 @@
 </main>
 
 <footer>
-  &copy; 2024 計算ツール集 — 日常で使える便利ツール ／ <a href="privacy.html" style="color:var(--muted);">プライバシーポリシー</a>
+  &copy; 2024 計算ツール集 ／ <a href="privacy.html">プライバシーポリシー</a>
 </footer>
 
 <script>
@@ -890,6 +954,7 @@
       link.classList.add('active');
       document.querySelectorAll('.tool-section').forEach(s => s.classList.remove('active'));
       document.getElementById('tool-' + tool).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
@@ -908,20 +973,16 @@
     const res = document.getElementById('age-result');
     if (!birth) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
-    const b = new Date(birth);
-    const t = new Date(target);
+    const b = new Date(birth), t = new Date(target);
     let age = t.getFullYear() - b.getFullYear();
     const m = t.getMonth() - b.getMonth();
     if (m < 0 || (m === 0 && t.getDate() < b.getDate())) age--;
-
     const nextBirth = new Date(t.getFullYear(), b.getMonth(), b.getDate());
     if (nextBirth <= t) nextBirth.setFullYear(t.getFullYear() + 1);
-    const diffDays = Math.ceil((nextBirth - t) / (1000 * 60 * 60 * 24));
-
-    const totalDays = Math.floor((t - b) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil((nextBirth - t) / 86400000);
+    const totalDays = Math.floor((t - b) / 86400000);
     document.getElementById('age-main').textContent = `${age} 歳`;
-    document.getElementById('age-sub').textContent = `生後 ${totalDays.toLocaleString()} 日 / 次の誕生日まであと ${diffDays} 日`;
+    document.getElementById('age-sub').textContent = `生後 ${totalDays.toLocaleString()} 日 ／ 次の誕生日まで ${diffDays} 日`;
     res.classList.add('show');
   }
 
@@ -933,21 +994,16 @@
     const res = document.getElementById('bmi-result');
     if (!h || !w || h <= 0 || w <= 0) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
     const bmi = w / ((h / 100) ** 2);
-    let category, color;
-    if (bmi < 18.5)      { category = '低体重（やせ型）'; color = '#06b6d4'; }
-    else if (bmi < 25)   { category = '普通体重'; color = '#10b981'; }
-    else if (bmi < 30)   { category = '肥満（1度）'; color = '#f59e0b'; }
-    else if (bmi < 35)   { category = '肥満（2度）'; color = '#f97316'; }
-    else                 { category = '肥満（3度以上）'; color = '#ef4444'; }
-
+    let category;
+    if (bmi < 18.5) category = '低体重（やせ型）';
+    else if (bmi < 25) category = '普通体重 ✓';
+    else if (bmi < 30) category = '肥満（1度）';
+    else if (bmi < 35) category = '肥満（2度）';
+    else category = '肥満（3度以上）';
     const ideal = 22 * ((h / 100) ** 2);
-    document.getElementById('bmi-main').textContent = `BMI: ${bmi.toFixed(1)}`;
-    document.getElementById('bmi-main').style.color = color;
+    document.getElementById('bmi-main').textContent = `BMI ${bmi.toFixed(1)}`;
     document.getElementById('bmi-sub').textContent = `${category} ／ 標準体重: ${ideal.toFixed(1)} kg`;
-
-    // ゲージポインター位置（BMI 15〜40の範囲でマッピング）
     const pct = Math.min(Math.max((bmi - 15) / 25 * 100, 0), 100);
     document.getElementById('bmi-pointer').style.left = `${pct}%`;
     res.classList.add('show');
@@ -962,17 +1018,14 @@
     const res = document.getElementById('wari-result');
     if (!total || !people || people < 1) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
     let perPerson = total / people;
-    if (roundType === 'ceil')       perPerson = Math.ceil(perPerson);
+    if (roundType === 'ceil') perPerson = Math.ceil(perPerson);
     else if (roundType === 'floor') perPerson = Math.floor(perPerson);
-    else                            perPerson = Math.round(perPerson);
-
+    else perPerson = Math.round(perPerson);
     const actualTotal = perPerson * people;
     const diff = actualTotal - total;
-    document.getElementById('wari-main').textContent = `一人あたり ${perPerson.toLocaleString()} 円`;
-    document.getElementById('wari-sub').textContent = `合計 ${actualTotal.toLocaleString()} 円（${diff >= 0 ? '+' : ''}${diff} 円）`;
-
+    document.getElementById('wari-main').textContent = `${perPerson.toLocaleString()} 円 / 人`;
+    document.getElementById('wari-sub').textContent = `合計 ${actualTotal.toLocaleString()} 円（誤差 ${diff >= 0 ? '+' : ''}${diff} 円）`;
     const table = document.getElementById('wari-table');
     let rows = `<tr><th>人</th><th>支払額</th></tr>`;
     for (let i = 1; i <= Math.min(people, 20); i++) {
@@ -991,7 +1044,6 @@
     const lines = text === '' ? 0 : text.split('\n').length;
     const bytes = new TextEncoder().encode(text).length;
     const paras = text.trim() === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim()).length || 1;
-
     document.getElementById('count-all').textContent = text.length.toLocaleString();
     document.getElementById('count-nospace').textContent = noSpace.length.toLocaleString();
     document.getElementById('count-words').textContent = words.toLocaleString();
@@ -1009,36 +1061,40 @@
     const res = document.getElementById('cd-result');
     if (!dateVal) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
     document.getElementById('cd-title').textContent = `⏳ ${name} まで`;
     res.classList.add('show');
     if (cdTimer) clearInterval(cdTimer);
-
     function update() {
-      const target = new Date(dateVal + 'T00:00:00');
-      const now = new Date();
-      const diff = target - now;
+      const diff = new Date(dateVal + 'T00:00:00') - new Date();
       if (diff <= 0) {
-        document.getElementById('cd-days').textContent = '0';
-        document.getElementById('cd-hours').textContent = '0';
-        document.getElementById('cd-mins').textContent = '0';
-        document.getElementById('cd-secs').textContent = '0';
+        ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => document.getElementById(id).textContent = '0');
         document.getElementById('cd-sub').textContent = '🎉 その日が来ました！';
-        clearInterval(cdTimer);
-        return;
+        clearInterval(cdTimer); return;
       }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-      document.getElementById('cd-days').textContent = days;
-      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
-      document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
-      document.getElementById('cd-sub').textContent = `${new Date(dateVal).toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric', weekday:'short' })}`;
+      document.getElementById('cd-days').textContent = Math.floor(diff / 86400000);
+      document.getElementById('cd-hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+      document.getElementById('cd-secs').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+      document.getElementById('cd-sub').textContent = new Date(dateVal).toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
     }
     update();
     cdTimer = setInterval(update, 1000);
+  }
+
+  // ── 消費税計算 ──
+  function calcTax() {
+    const amount = parseFloat(document.getElementById('tax-amount').value);
+    const rate = parseFloat(document.getElementById('tax-rate').value) / 100;
+    const type = document.getElementById('tax-type').value;
+    const resultsEl = document.getElementById('tax-results');
+    if (!amount || amount < 0) { resultsEl.style.display = 'none'; return; }
+    let excl, incl, tax;
+    if (type === 'excl') { excl = amount; tax = Math.floor(excl * rate); incl = excl + tax; }
+    else { incl = amount; excl = Math.floor(incl / (1 + rate)); tax = incl - excl; }
+    document.getElementById('tax-excl').textContent = excl.toLocaleString() + ' 円';
+    document.getElementById('tax-tax').textContent = tax.toLocaleString() + ' 円';
+    document.getElementById('tax-incl').textContent = incl.toLocaleString() + ' 円';
+    resultsEl.style.display = 'grid';
   }
 
   // ── パーセント計算 ──
@@ -1047,45 +1103,39 @@
     const a = parseFloat(document.getElementById('pct-a').value);
     const b = parseFloat(document.getElementById('pct-b').value);
     const res = document.getElementById('pct-results');
-    const l1 = document.getElementById('pct-label1');
-    const l2 = document.getElementById('pct-label2');
-
     const labels = {
-      of:     ['元の数値', 'パーセント（%）'],
-      ratio:  ['元の数値（分子）', '比較する数値（分母）'],
-      off:    ['元の金額（円）', '割引率（%）'],
-      change: ['変化前の数値', '変化後の数値'],
+      of: ['元の数値','パーセント（%）'],
+      ratio: ['元の数値（分子）','比較する数値（分母）'],
+      off: ['元の金額（円）','割引率（%）'],
+      change: ['変化前の数値','変化後の数値'],
     };
-    l1.textContent = labels[type][0];
-    l2.textContent = labels[type][1];
-
+    document.getElementById('pct-label1').textContent = labels[type][0];
+    document.getElementById('pct-label2').textContent = labels[type][1];
     if (isNaN(a) || isNaN(b)) { res.style.display = 'none'; return; }
-
     let main, label, s1, sl1, s2, sl2;
     if (type === 'of') {
-      const result = a * b / 100;
-      main = result.toLocaleString(undefined, {maximumFractionDigits:2});
-      label = `${a.toLocaleString()} の ${b}% は ${main}`;
-      s1 = (a - result).toLocaleString(undefined, {maximumFractionDigits:2}); sl1 = '残り';
-      s2 = result.toLocaleString(undefined, {maximumFractionDigits:2}); sl2 = '%分の金額';
+      const r = a * b / 100;
+      main = r.toLocaleString(undefined,{maximumFractionDigits:2});
+      label = `${a.toLocaleString()} の ${b}%`;
+      s1 = (a-r).toLocaleString(undefined,{maximumFractionDigits:2}); sl1 = '残り';
+      s2 = r.toLocaleString(undefined,{maximumFractionDigits:2}); sl2 = '%分の金額';
     } else if (type === 'ratio') {
-      const result = (a / b * 100);
-      main = result.toFixed(2) + '%';
-      label = `${a} は ${b} の ${main}`;
+      main = (a/b*100).toFixed(2) + '%';
+      label = `${a} は ${b} の何%`;
       s1 = a.toLocaleString(); sl1 = '分子';
       s2 = b.toLocaleString(); sl2 = '分母';
     } else if (type === 'off') {
       const disc = a * b / 100;
       const after = a - disc;
-      main = after.toLocaleString(undefined, {maximumFractionDigits:0}) + ' 円';
-      label = `${b}%引き後の金額`;
-      s1 = disc.toLocaleString(undefined, {maximumFractionDigits:0}) + ' 円'; sl1 = '割引額';
+      main = Math.round(after).toLocaleString() + ' 円';
+      label = `${b}%割引後の金額`;
+      s1 = Math.round(disc).toLocaleString() + ' 円'; sl1 = '割引額';
       s2 = a.toLocaleString() + ' 円'; sl2 = '元の金額';
     } else {
       const rate = (b - a) / a * 100;
       main = (rate >= 0 ? '+' : '') + rate.toFixed(2) + '%';
-      label = `${a} → ${b} への変化率`;
-      s1 = (b - a >= 0 ? '+' : '') + (b - a).toLocaleString(undefined, {maximumFractionDigits:2}); sl1 = '差分';
+      label = `${a} → ${b} の変化率`;
+      s1 = (b-a>=0?'+':'') + (b-a).toLocaleString(undefined,{maximumFractionDigits:2}); sl1 = '差分';
       s2 = b.toLocaleString(); sl2 = '変化後';
     }
     document.getElementById('pct-main').textContent = main;
@@ -1107,31 +1157,23 @@
     const res = document.getElementById('loan-result');
     if (!amount || isNaN(annualRate) || !years) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
     const months = years * 12;
     let monthly, totalPayment;
-    if (annualRate === 0) {
-      monthly = amount / months;
-      totalPayment = amount;
-    } else if (type === 'equal') {
+    if (annualRate === 0) { monthly = amount / months; totalPayment = amount; }
+    else if (type === 'equal') {
       const r = annualRate / 100 / 12;
-      monthly = amount * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+      monthly = amount * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1);
       totalPayment = monthly * months;
     } else {
       const r = annualRate / 100 / 12;
-      const principalPerMonth = amount / months;
-      let balance = amount;
-      totalPayment = 0;
-      for (let i = 0; i < months; i++) {
-        totalPayment += principalPerMonth + balance * r;
-        balance -= principalPerMonth;
-      }
+      const pp = amount / months;
+      let bal = amount; totalPayment = 0;
+      for (let i = 0; i < months; i++) { totalPayment += pp + bal * r; bal -= pp; }
       monthly = totalPayment / months;
     }
-
     const interest = totalPayment - amount;
     document.getElementById('loan-monthly').textContent = `月々 ${Math.ceil(monthly).toLocaleString()} 円`;
-    document.getElementById('loan-sub').textContent = `借入 ${(amount/10000).toLocaleString()}万円 / 年利 ${annualRate}% / ${years}年`;
+    document.getElementById('loan-sub').textContent = `${(amount/10000).toLocaleString()}万円 ／ 年利 ${annualRate}% ／ ${years}年`;
     document.getElementById('loan-total').textContent = Math.round(totalPayment/10000).toLocaleString() + ' 万円';
     document.getElementById('loan-interest').textContent = Math.round(interest/10000).toLocaleString() + ' 万円';
     res.classList.add('show');
@@ -1144,10 +1186,10 @@
     if (type === 'diff' || type === 'work') {
       container.innerHTML = `
         <div class="input-row">
-          <div class="input-group"><label>${type === 'work' ? '出勤時刻' : '開始時刻'}</label><input type="time" id="time-a" value="09:00"></div>
-          <div class="input-group"><label>${type === 'work' ? '退勤時刻' : '終了時刻'}</label><input type="time" id="time-b" value="18:00"></div>
+          <div class="input-group"><label>${type==='work'?'出勤時刻':'開始時刻'}</label><input type="time" id="time-a" value="09:00"></div>
+          <div class="input-group"><label>${type==='work'?'退勤時刻':'終了時刻'}</label><input type="time" id="time-b" value="18:00"></div>
         </div>
-        ${type === 'work' ? '<div class="input-group"><label>休憩時間（分）</label><input type="number" id="time-break" value="60" min="0"></div>' : ''}
+        ${type==='work'?'<div class="input-group"><label>休憩時間（分）</label><input type="number" id="time-break" value="60" min="0"></div>':''}
       `;
     } else {
       container.innerHTML = `
@@ -1164,38 +1206,27 @@
     const type = document.getElementById('time-type').value;
     const err = document.getElementById('time-error');
     const res = document.getElementById('time-result');
-
     if (type === 'diff' || type === 'work') {
       const a = document.getElementById('time-a')?.value;
       const b = document.getElementById('time-b')?.value;
       if (!a || !b) { err.classList.add('show'); res.classList.remove('show'); return; }
       err.classList.remove('show');
-      const [ah, am] = a.split(':').map(Number);
-      let [bh, bm] = b.split(':').map(Number);
-      let diffMin = (bh * 60 + bm) - (ah * 60 + am);
-      if (diffMin < 0) diffMin += 24 * 60;
-      if (type === 'work') {
-        const brk = parseInt(document.getElementById('time-break')?.value || '0');
-        diffMin -= brk;
-      }
-      const h = Math.floor(Math.abs(diffMin) / 60);
-      const m = Math.abs(diffMin) % 60;
-      document.getElementById('time-main').textContent = `${h} 時間 ${m} 分`;
-      document.getElementById('time-sub').textContent = type === 'work'
-        ? `実働時間（休憩除く）`
-        : `${a} ～ ${b} の差`;
+      const [ah,am] = a.split(':').map(Number);
+      const [bh,bm] = b.split(':').map(Number);
+      let diffMin = (bh*60+bm) - (ah*60+am);
+      if (diffMin < 0) diffMin += 1440;
+      if (type === 'work') diffMin -= parseInt(document.getElementById('time-break')?.value || '0');
+      document.getElementById('time-main').textContent = `${Math.floor(Math.abs(diffMin)/60)} 時間 ${Math.abs(diffMin)%60} 分`;
+      document.getElementById('time-sub').textContent = type==='work' ? '実働時間（休憩除く）' : `${a} ～ ${b} の差`;
     } else {
       const a = document.getElementById('time-a')?.value;
       const delta = parseInt(document.getElementById('time-delta')?.value);
       if (!a || isNaN(delta)) { err.classList.add('show'); res.classList.remove('show'); return; }
       err.classList.remove('show');
-      const [ah, am] = a.split(':').map(Number);
-      let total = ah * 60 + am + delta;
-      total = ((total % 1440) + 1440) % 1440;
-      const rh = String(Math.floor(total / 60)).padStart(2, '0');
-      const rm = String(total % 60).padStart(2, '0');
-      document.getElementById('time-main').textContent = `${rh}:${rm}`;
-      document.getElementById('time-sub').textContent = `${a} に ${delta >= 0 ? '+' : ''}${delta}分 した時刻`;
+      const [ah,am] = a.split(':').map(Number);
+      let total = ((ah*60+am+delta) % 1440 + 1440) % 1440;
+      document.getElementById('time-main').textContent = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+      document.getElementById('time-sub').textContent = `${a} に ${delta>=0?'+':''}${delta}分 した時刻`;
     }
     res.classList.add('show');
   }
@@ -1211,17 +1242,14 @@
     const res = document.getElementById('cal-result');
     if (!age || !h || !w) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
     const bmr = gender === 'male'
-      ? 88.362 + 13.397 * w + 4.799 * h - 5.677 * age
-      : 447.593 + 9.247 * w + 3.098 * h - 4.330 * age;
+      ? 88.362 + 13.397*w + 4.799*h - 5.677*age
+      : 447.593 + 9.247*w + 3.098*h - 4.330*age;
     const tdee = bmr * activity;
-    const diet = tdee - 500;
-
-    document.getElementById('cal-main').textContent = `1日 ${Math.round(tdee).toLocaleString()} kcal`;
-    document.getElementById('cal-sub').textContent = `推定1日消費カロリー（Mifflin-St Jeor 式）`;
+    document.getElementById('cal-main').textContent = `${Math.round(tdee).toLocaleString()} kcal / 日`;
+    document.getElementById('cal-sub').textContent = '推定1日消費カロリー（Mifflin-St Jeor 式）';
     document.getElementById('cal-bmr').textContent = Math.round(bmr).toLocaleString() + ' kcal';
-    document.getElementById('cal-diet').textContent = Math.round(diet).toLocaleString() + ' kcal';
+    document.getElementById('cal-diet').textContent = Math.round(tdee-500).toLocaleString() + ' kcal';
     res.classList.add('show');
   }
 
@@ -1235,48 +1263,17 @@
     const res = document.getElementById('sav-result');
     if (isNaN(monthly) || !years) { err.classList.add('show'); res.classList.remove('show'); return; }
     err.classList.remove('show');
-
     const r = annualRate / 100 / 12;
     const months = years * 12;
-    let total;
-    if (r === 0) {
-      total = init + monthly * months;
-    } else {
-      total = init * Math.pow(1 + r, months) + monthly * (Math.pow(1 + r, months) - 1) / r;
-    }
+    const total = r === 0
+      ? init + monthly * months
+      : init * Math.pow(1+r, months) + monthly * (Math.pow(1+r, months) - 1) / r;
     const principal = init + monthly * months;
-    const interest = total - principal;
-
-    document.getElementById('sav-main').textContent = `${Math.round(total).toLocaleString()} 円`;
+    document.getElementById('sav-main').textContent = Math.round(total).toLocaleString() + ' 円';
     document.getElementById('sav-sub').textContent = `${years}年後の貯蓄額（年利 ${annualRate}%）`;
     document.getElementById('sav-principal').textContent = Math.round(principal).toLocaleString() + ' 円';
-    document.getElementById('sav-interest').textContent = Math.round(interest).toLocaleString() + ' 円';
+    document.getElementById('sav-interest').textContent = Math.round(total-principal).toLocaleString() + ' 円';
     res.classList.add('show');
-  }
-
-  // ── 消費税計算 ──
-  function calcTax() {
-    const amount = parseFloat(document.getElementById('tax-amount').value);
-    const rate = parseFloat(document.getElementById('tax-rate').value) / 100;
-    const type = document.getElementById('tax-type').value;
-    const resultsEl = document.getElementById('tax-results');
-    if (!amount || amount < 0) { resultsEl.style.display = 'none'; return; }
-
-    let excl, incl, tax;
-    if (type === 'excl') {
-      excl = amount;
-      tax = Math.floor(excl * rate);
-      incl = excl + tax;
-    } else {
-      incl = amount;
-      excl = Math.floor(incl / (1 + rate));
-      tax = incl - excl;
-    }
-
-    document.getElementById('tax-excl').textContent = excl.toLocaleString() + ' 円';
-    document.getElementById('tax-tax').textContent = tax.toLocaleString() + ' 円';
-    document.getElementById('tax-incl').textContent = incl.toLocaleString() + ' 円';
-    resultsEl.style.display = 'grid';
   }
 </script>
 </body>
