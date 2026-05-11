@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="計算ツール集へのお問い合わせページです。ご意見・ご要望・不具合報告などお気軽にどうぞ。">
+  <meta name="robots" content="index, follow">
+  <meta name="google-site-verification" content="PVh8bBZDqtXtAg6I9s7ynp3K6_xiUOzi8cFy8FFiTpY" />
+  <title>お問い合わせ | 計算ツール集</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1364194685674740"
+     crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --primary: #7c3aed; --primary-light: #a78bfa; --accent: #06b6d4;
+      --bg: #0f0f1a; --surface: rgba(255,255,255,0.04); --card-border: rgba(255,255,255,0.08);
+      --text: #f1f5f9; --muted: #94a3b8; --danger: #f43f5e; --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+
+    header {
+      background: linear-gradient(135deg, #0f0f1a, #1a0a2e);
+      padding: 48px 24px 40px; text-align: center;
+      border-bottom: 1px solid var(--card-border); position: relative; overflow: hidden;
+    }
+    header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 100%, rgba(124,58,237,0.2), transparent 70%); }
+    header .inner { position: relative; }
+    .badge { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--primary-light); padding: 4px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 14px; }
+    header h1 { font-size: clamp(1.6rem,4vw,2.4rem); font-weight: 900; background: linear-gradient(135deg,#fff,var(--primary-light),var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    header p { color: var(--muted); margin-top: 8px; font-size: 0.95rem; }
+
+    nav { background: rgba(15,15,26,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); padding: 14px 24px; display: flex; gap: 24px; align-items: center; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
+    nav a:hover, nav a.active { color: var(--primary-light); }
+
+    main { max-width: 640px; margin: 0 auto; padding: 48px 16px 80px; }
+
+    .card { background: var(--surface); border: 1px solid var(--card-border); border-radius: 20px; padding: 40px; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(124,58,237,0.5), rgba(6,182,212,0.5), transparent); }
+
+    h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
+
+    label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+    input, textarea, select {
+      width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px;
+      font-size: 1rem; font-family: inherit; color: var(--text); outline: none; transition: all 0.2s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary); background: rgba(124,58,237,0.08); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+    select option { background: #1a1a2e; }
+    textarea { resize: vertical; min-height: 140px; }
+    .input-group { margin-bottom: 20px; }
+
+    .btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #5b21b6);
+      color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700;
+      font-family: inherit; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.5); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .success-box { display: none; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 24px; text-align: center; margin-top: 20px; }
+    .success-box.show { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .success-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .success-title { font-weight: 800; font-size: 1.1rem; color: var(--success); margin-bottom: 6px; }
+    .success-desc { color: var(--muted); font-size: 0.9rem; }
+
+    .note { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; font-size: 0.88rem; color: var(--muted); }
+    .note strong { color: var(--primary-light); }
+
+    footer { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--card-border); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--primary-light); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="badge">✦ CONTACT</div>
+    <h1>お問い合わせ</h1>
+    <p>ご意見・ご要望・不具合報告などお気軽にどうぞ</p>
+  </div>
+</header>
+
+<nav>
+  <a href="index.html">⚡ ツール一覧</a>
+  <a href="column.html">📖 コラム</a>
+  <a href="contact.html" class="active">✉️ お問い合わせ</a>
+  <a href="privacy.html">🔒 プライバシー</a>
+</nav>
+
+<main>
+  <div class="card">
+    <h2>✉️ お問い合わせフォーム</h2>
+    <p class="desc">ご意見・ご要望・不具合報告など、なんでもお気軽にご連絡ください。通常2〜3営業日以内にご返答いたします。</p>
+
+    <div class="note">
+      <strong>💡 よくあるお問い合わせ：</strong><br>
+      「このツールを追加してほしい」「計算結果がおかしい」「使い方がわからない」などもお気軽にどうぞ。
+    </div>
+
+    <form id="contact-form" onsubmit="handleSubmit(event)">
+      <div class="input-group">
+        <label>お名前</label>
+        <input type="text" id="name" placeholder="山田 太郎" required>
+      </div>
+      <div class="input-group">
+        <label>メールアドレス</label>
+        <input type="email" id="email" placeholder="example@email.com" required>
+      </div>
+      <div class="input-group">
+        <label>お問い合わせの種類</label>
+        <select id="category">
+          <option value="">選択してください</option>
+          <option value="tool-request">新しいツールのリクエスト</option>
+          <option value="bug">不具合・エラーの報告</option>
+          <option value="improvement">改善・ご要望</option>
+          <option value="other">その他</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>お問い合わせ内容</label>
+        <textarea id="message" placeholder="お問い合わせ内容をご記入ください..." required></textarea>
+      </div>
+      <button type="submit" class="btn" id="submit-btn">送信する →</button>
+    </form>
+
+    <div class="success-box" id="success-box">
+      <div class="success-icon">✅</div>
+      <div class="success-title">送信完了しました！</div>
+      <div class="success-desc">お問い合わせありがとうございます。<br>通常2〜3営業日以内にご返答いたします。</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  &copy; 2024 計算ツール集 ／ <a href="index.html">ツール一覧</a> ／ <a href="privacy.html">プライバシーポリシー</a>
+</footer>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+    // デモ用：実際にはFormspreeやGoogleフォームと連携可能
+    setTimeout(() => {
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('success-box').classList.add('show');
+    }, 1000);
+  }
+</script>
+</body>
+</html>

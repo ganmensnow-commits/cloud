@@ -7,6 +7,18 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://ganmensnow-commits.github.io/cloud/tools-site/column.html</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ganmensnow-commits.github.io/cloud/tools-site/contact.html</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://ganmensnow-commits.github.io/cloud/tools-site/privacy.html</loc>
     <lastmod>2024-01-01</lastmod>
     <changefreq>monthly</changefreq>
