@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>バーコードスキャナー</title>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Quagga2: 1Dバーコード専用高速スキャンライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -366,8 +367,8 @@
                     showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
                 }
             } else {
-                // フォールバック: html5-qrcode を使用（Safari等）
-                startHtml5QrCode();
+                // フォールバック: Quagga2 を使用（Safari等）
+                startQuagga();
             }
         }
 
@@ -407,48 +408,49 @@
             } catch(e) { torchOn = !torchOn; }
         }
 
-        function startHtml5QrCode() {
+        // Quagga2 フォールバック（Safari等のBarcodeDetector非対応ブラウザ用）
+        function startQuagga() {
+            const readerEl = document.getElementById('qrReader');
+            readerEl.style.display = 'block';
             document.getElementById('cameraWrap').style.display = 'none';
             document.getElementById('startBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'flex';
 
-            // html5-qrcode 用の読み取りエリアを表示
-            const readerEl = document.getElementById('qrReader');
-            readerEl.style.display = 'block';
+            Quagga.init({
+                inputStream: {
+                    name: 'Live',
+                    type: 'LiveStream',
+                    target: readerEl,
+                    constraints: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                },
+                locator: { patchSize: 'medium', halfSample: true },
+                numOfWorkers: navigator.hardwareConcurrency || 2,
+                frequency: 20,
+                decoder: {
+                    readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader'],
+                    multiple: false
+                },
+                locate: true
+            }, (err) => {
+                if (err) {
+                    showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
+                    stopCamera();
+                    return;
+                }
+                Quagga.start();
+                html5QrCode = true; // Quagga起動中フラグ
+            });
 
-            html5QrCode = new Html5Qrcode('qrReader');
-            html5QrCode.start(
-                { facingMode: 'environment' },
-                {
-                    fps: 15,
-                    qrbox: { width: 200, height: 100 },
-                    aspectRatio: 1.5,
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.UPC_A,
-                        Html5QrcodeSupportedFormats.UPC_E,
-                        Html5QrcodeSupportedFormats.CODE_128
-                    ]
-                },
-                (code) => {
-                    // 安定スキャン: 同じ値が連続3回
-                    if (code === lastCode) {
-                        sameCount++;
-                    } else {
-                        lastCode = code;
-                        sameCount = 1;
-                    }
-                    if (sameCount >= CONFIRM_COUNT) {
-                        if (navigator.vibrate) navigator.vibrate(80);
-                        stopCamera();
-                        showConfirm(code);
-                    }
-                },
-                () => {}
-            ).catch(() => {
-                showResult('<div class="card"><h3>⚠️ カメラエラー</h3><p style="color:#94a3b8;margin-top:0.5rem;">カメラへのアクセスを許可してください。</p></div>');
+            Quagga.onDetected((result) => {
+                const code = result?.codeResult?.code;
+                if (!code || html5QrCode !== true) return;
+                if (navigator.vibrate) navigator.vibrate(80);
                 stopCamera();
+                onScanned(code);
             });
         }
 
@@ -468,12 +470,12 @@
             document.getElementById('torchBtn').style.display = 'none';
             document.getElementById('cameraWrap').onclick = null;
             if (html5QrCode) {
-                html5QrCode.stop().catch(() => {}).finally(() => {
-                    html5QrCode.clear();
-                    html5QrCode = null;
-                    document.getElementById('qrReader').style.display = 'none';
-                    document.getElementById('qrReader').innerHTML = '';
-                });
+                // Quagga2 停止
+                try { Quagga.stop(); Quagga.offDetected(); } catch(e) {}
+                html5QrCode = null;
+                const qr = document.getElementById('qrReader');
+                qr.style.display = 'none';
+                qr.innerHTML = '';
             }
             document.getElementById('cameraWrap').style.display = 'none';
             document.getElementById('startBtn').style.display = 'flex';
@@ -497,51 +499,50 @@
                 if (barcodes.length > 0) {
                     const code = barcodes[0].rawValue;
                     if (code) {
-                        if (code === lastCode) {
-                            sameCount++;
-                        } else {
-                            lastCode = code;
-                            sameCount = 1;
-                        }
-                        const dots = '●'.repeat(sameCount) + '○'.repeat(Math.max(0, CONFIRM_COUNT - sameCount));
-                        updateScanStatus(`読取中: ${code} ${dots}`);
-
-                        if (sameCount >= CONFIRM_COUNT) {
-                            if (navigator.vibrate) navigator.vibrate(80);
-                            stopCamera();
-                            showConfirm(code);
-                            return;
-                        }
+                        if (navigator.vibrate) navigator.vibrate(80);
+                        stopCamera();
+                        onScanned(code);
+                        return;
                     }
                 }
             } catch(e) {}
 
-            scanInterval = setTimeout(scanLoop, 50);
+            scanInterval = setTimeout(scanLoop, 33); // 約30fps
         }
 
-        // スキャン結果を確認させてから処理に進む
-        function showConfirm(barcode) {
+        // スキャン成功時の共通処理
+        function onScanned(code) {
+            code = code.trim();
             products = loadProducts();
-            const found = !!products[barcode];
 
+            if (products[code]) {
+                // 登録済み → 即表示（確認画面なし）
+                showProductCard(code);
+            } else {
+                // 未登録 → 確認画面（番号の修正が可能）
+                showConfirm(code);
+            }
+        }
+
+        // 未登録商品のみ確認画面を表示
+        function showConfirm(barcode) {
             showResult(`
                 <div class="card">
-                    <h3>📷 スキャン結果</h3>
-                    <p style="color:#94a3b8; font-size:0.8rem; margin-bottom:0.6rem;">番号が正しいか確認してください。違う場合は修正できます。</p>
+                    <h3>🆕 新しい商品</h3>
+                    <p style="color:#94a3b8; font-size:0.8rem; margin-bottom:0.6rem;">バーコード番号を確認して登録してください。</p>
                     <div class="form-group">
-                        <label>バーコード番号</label>
-                        <input type="text" id="confirmBarcode" value="${barcode}" style="font-family:monospace; font-size:1.1rem; font-weight:700; letter-spacing:0.05em;">
+                        <label>バーコード番号（修正可）</label>
+                        <input type="text" id="confirmBarcode" value="${barcode}" style="font-family:monospace; font-size:1.05rem; font-weight:700;">
                     </div>
-                    ${found ? '<p style="color:#6ee7b7; font-size:0.85rem; font-weight:600;">✅ この商品は登録済みです</p>' : '<p style="color:#fbbf24; font-size:0.85rem;">🆕 未登録の商品です</p>'}
                     <div style="display:flex; gap:0.5rem; margin-top:0.8rem;">
-                        <button class="btn-register" onclick="confirmAndProceed()">OK</button>
+                        <button class="btn-register" onclick="proceedToRegister()">この番号で登録</button>
                         <button class="btn-edit" onclick="startCamera()" style="flex:0 0 auto; padding:0.8rem 1.2rem;">再スキャン</button>
                     </div>
                 </div>
             `);
         }
 
-        function confirmAndProceed() {
+        function proceedToRegister() {
             const input = document.getElementById('confirmBarcode');
             const barcode = (input?.value || '').trim();
             if (!barcode) return;
