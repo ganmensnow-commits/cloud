@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ganmensnow-commits.github.io/cloud/tools-site/sitemap.xml
