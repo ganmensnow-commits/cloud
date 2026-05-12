@@ -55,6 +55,51 @@
             display: block;
         }
 
+        /* Quagga2用カメラ表示 */
+        #qrReader {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        /* Quagga2が生成するvideoを全幅に */
+        #qrReader video {
+            width: 100% !important;
+            height: auto !important;
+            display: block;
+        }
+
+        /* Quagga2のcanvasを非表示（描画干渉防止） */
+        #qrReader canvas.drawingBuffer { display: none; }
+
+        /* 両カメラ共通のオーバーレイ枠 */
+        .scan-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px; height: 80px;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .scan-hint {
+            position: absolute;
+            bottom: 12px;
+            width: 100%;
+            text-align: center;
+            color: #fbbf24;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            pointer-events: none;
+            z-index: 10;
+        }
+
         .scan-overlay {
             position: absolute;
             top: 50%; left: 50%;
@@ -443,6 +488,14 @@
                 }
                 Quagga.start();
                 html5QrCode = true; // Quagga起動中フラグ
+
+                // オーバーレイ枠とヒントを挿入
+                if (!readerEl.querySelector('.scan-overlay')) {
+                    readerEl.insertAdjacentHTML('beforeend',
+                        '<div class="scan-overlay"></div>' +
+                        '<div class="scan-hint">枠に合わせる・タップでフォーカス</div>'
+                    );
+                }
             });
 
             Quagga.onDetected((result) => {
