@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="時間計算の基本と応用を解説。勤務時間・残業代の計算方法、時間の足し算引き算、分・秒への変換、タイムゾーンの計算、作業時間の見積もりコツまで詳しく説明します。">
+  <meta name="keywords" content="時間計算,勤務時間,残業代,時給,タイムゾーン,時差,作業時間">
+  <meta name="robots" content="index, follow">
+  <title>時間計算の基本と応用：勤務時間・残業代・時差まで完全ガイド | 計算ツール集</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1364194685674740" crossorigin="anonymous"></script>
+  <style>
+    :root { --primary: #7c3aed; --primary-light: #a78bfa; --accent: #06b6d4; --bg: #0f0f1a; --surface: rgba(255,255,255,0.04); --card-border: rgba(255,255,255,0.08); --text: #f1f5f9; --muted: #94a3b8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+    header { background: linear-gradient(135deg, #1e1b4b, #312e81); padding: 48px 24px 40px; text-align: center; border-bottom: 1px solid var(--card-border); position: relative; overflow: hidden; }
+    header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 100%, rgba(99,102,241,0.2), transparent 70%); }
+    header .inner { position: relative; }
+    .badge { display: inline-block; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); color: #a5b4fc; padding: 4px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 14px; }
+    header h1 { font-size: clamp(1.4rem,3vw,2rem); font-weight: 900; color: #fff; line-height: 1.4; }
+    header p { color: #c7d2fe; margin-top: 8px; font-size: 0.9rem; }
+    nav { background: rgba(15,15,26,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); padding: 14px 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
+    nav a:hover { color: var(--primary-light); }
+    main { max-width: 800px; margin: 0 auto; padding: 48px 16px 80px; }
+    .article-page { background: var(--surface); border: 1px solid var(--card-border); border-radius: 18px; padding: 40px; position: relative; overflow: hidden; }
+    .article-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(6,182,212,0.5), transparent); }
+    .meta { display: flex; gap: 16px; color: var(--muted); font-size: 0.82rem; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); flex-wrap: wrap; }
+    h2 { font-size: 1.15rem; font-weight: 800; margin: 32px 0 12px; color: #a5b4fc; display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; width: 4px; height: 1.15rem; background: linear-gradient(#6366f1,#06b6d4); border-radius: 2px; flex-shrink: 0; }
+    h3 { font-size: 1rem; font-weight: 700; margin: 20px 0 8px; color: #e2e8f0; }
+    p { font-size: 0.95rem; color: #cbd5e1; margin-bottom: 16px; line-height: 1.9; }
+    ul, ol { margin: 12px 0 16px 20px; font-size: 0.95rem; color: #cbd5e1; }
+    li { margin-bottom: 8px; line-height: 1.7; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 16px 0; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--card-border); text-align: left; }
+    th { color: #a5b4fc; font-weight: 700; font-size: 0.8rem; background: rgba(99,102,241,0.08); }
+    .info-box { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
+    .info-box p { margin-bottom: 0; color: var(--text); }
+    .tool-link { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #6366f1, #4338ca); color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; margin-top: 24px; transition: all 0.2s; }
+    .tool-link:hover { transform: translateY(-2px); }
+    .back-link { display: inline-flex; align-items: center; gap: 8px; color: #a5b4fc; text-decoration: none; font-size: 0.9rem; font-weight: 600; margin-bottom: 24px; }
+    .back-link:hover { text-decoration: underline; }
+    footer { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--card-border); margin-top: 40px; }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--primary-light); }
+  </style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <div class="badge">⏱️ 時間計算</div>
+    <h1>時間計算の基本と応用<br>勤務時間・残業代・時差まで完全ガイド</h1>
+    <p>時間の足し算引き算・時給計算・タイムゾーン変換を徹底解説</p>
+  </div>
+</header>
+<nav>
+  <a href="../index.html">⚡ ツール一覧</a>
+  <a href="../column.html">📖 コラム一覧</a>
+  <a href="../contact.html">✉️ お問い合わせ</a>
+</nav>
+<main>
+  <a class="back-link" href="../column.html">← コラム一覧に戻る</a>
+  <div class="article-page">
+    <span class="badge">⏱️ 時間計算</span>
+    <h1 style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;margin:12px 0 16px;color:#fff;line-height:1.4;">時間計算の基本と応用：勤務時間・残業代・時差まで完全ガイド</h1>
+    <div class="meta">
+      <span>📅 2024年1月</span>
+      <span>⏱️ 読了時間：約8分</span>
+      <span>🏷️ 時間・勤務・残業・時差</span>
+    </div>
+
+    <p>時間の計算は算数の中でも少し特殊です。「10時30分から18時45分まで何時間何分か」「時給1,200円で8時間15分働いたらいくらもらえるか」──こういった計算は普通の足し算引き算と少し勝手が違います。この記事では、時間計算の基本から実用的な応用まで丁寧に解説します。</p>
+
+    <h2>時間計算の基本：60進法を理解する</h2>
+    <p>普段の算数は10進法（0〜9の10種類の数字を使い、10になったら桁が上がる）ですが、時間は60進法（60秒＝1分、60分＝1時間）です。そのため、普通の計算とは違うルールが必要です。</p>
+
+    <h3>時間の足し算</h3>
+    <p>3時間45分 + 2時間30分を計算してみましょう。</p>
+    <ul>
+      <li>分の計算：45 + 30 = 75分 → 75分 = 1時間15分（60分を1時間に繰り上げ）</li>
+      <li>時間の計算：3 + 2 + 1（繰り上げ）= 6時間</li>
+      <li>答え：6時間15分</li>
+    </ul>
+
+    <h3>時間の引き算</h3>
+    <p>5時間20分 − 2時間50分を計算します。</p>
+    <ul>
+      <li>分の計算：20 − 50ができないので、1時間借りて 80 − 50 = 30分</li>
+      <li>時間の計算：(5−1) − 2 = 2時間</li>
+      <li>答え：2時間30分</li>
+    </ul>
+
+    <h3>時刻から経過時間を求める</h3>
+    <p>10時30分から18時45分まで何時間何分か？</p>
+    <ul>
+      <li>方法1：18時45分 − 10時30分 = 8時間15分（直接引く）</li>
+      <li>方法2：10時30分 → 18時30分 = 8時間、18時30分 → 18時45分 = 15分 → 合計8時間15分</li>
+    </ul>
+
+    <h2>日をまたぐ時間計算</h2>
+    <p>夜勤・徹夜作業など、日をまたいで計算する場合は少し工夫が必要です。</p>
+
+    <div class="info-box">
+      <p>📐 <strong>計算方法</strong>：前日の終了時刻が翌日の場合、終了時刻に24時間を加えて計算します。<br>
+      例：22時00分 ～ 翌4時30分 → 28時30分（24+4:30）− 22時00分 = 6時間30分</p>
+    </div>
+
+    <h2>勤務時間と賃金の計算</h2>
+
+    <h3>時給から日給・月給を計算する</h3>
+    <p>時給1,200円で1日8時間、月20日働いた場合の給与：</p>
+    <ul>
+      <li>日給 = 1,200円 × 8時間 = 9,600円</li>
+      <li>月給 = 9,600円 × 20日 = 192,000円</li>
+    </ul>
+
+    <h3>端数（分）が出る場合の計算</h3>
+    <p>時給1,200円で8時間15分働いた場合：</p>
+    <ul>
+      <li>8時間15分 = 8.25時間（15分 ÷ 60 = 0.25）</li>
+      <li>給与 = 1,200円 × 8.25時間 = 9,900円</li>
+    </ul>
+
+    <h3>残業代の計算方法</h3>
+    <p>日本の労働基準法では、1日8時間・週40時間を超えた労働に対しては割増賃金の支払いが義務付けられています。</p>
+
+    <table>
+      <tr><th>残業の種類</th><th>割増率</th><th>根拠</th></tr>
+      <tr><td>時間外労働（法定時間外）</td><td>25%以上増</td><td>労基法37条</td></tr>
+      <tr><td>深夜労働（22時〜5時）</td><td>25%以上増</td><td>通常の深夜割増</td></tr>
+      <tr><td>時間外＋深夜</td><td>50%以上増</td><td>両方適用</td></tr>
+      <tr><td>休日労働（法定休日）</td><td>35%以上増</td><td>法定休日の場合</td></tr>
+      <tr><td>月60時間超の時間外（大企業）</td><td>50%以上増</td><td>2023年4月から中小企業も適用</td></tr>
+    </table>
+
+    <h3>残業代計算の具体例</h3>
+    <p>月給25万円・所定労働時間160時間/月の会社員が20時間残業した場合：</p>
+    <ul>
+      <li>1時間あたりの賃金 = 250,000 ÷ 160 = 1,562.5円</li>
+      <li>残業割増単価 = 1,562.5 × 1.25 = 1,953円（25%割増）</li>
+      <li>残業代 = 1,953円 × 20時間 = 39,062円</li>
+    </ul>
+
+    <h2>世界の時差計算</h2>
+    <p>海外との仕事・旅行・海外在住の友人との連絡で時差計算が必要になります。</p>
+
+    <table>
+      <tr><th>都市・国</th><th>日本（JST UTC+9）との時差</th><th>日本が12時のとき</th></tr>
+      <tr><td>ロンドン（GMT/BST）</td><td>−9時間（夏時間は−8時間）</td><td>3時（夏：4時）</td></tr>
+      <tr><td>ニューヨーク（EST/EDT）</td><td>−14時間（夏時間は−13時間）</td><td>前日22時（夏：前日23時）</td></tr>
+      <tr><td>ロサンゼルス（PST/PDT）</td><td>−17時間（夏時間は−16時間）</td><td>前日19時（夏：前日20時）</td></tr>
+      <tr><td>パリ（CET/CEST）</td><td>−8時間（夏時間は−7時間）</td><td>4時（夏：5時）</td></tr>
+      <tr><td>ソウル（KST）</td><td>0時間</td><td>12時</td></tr>
+      <tr><td>北京（CST）</td><td>−1時間</td><td>11時</td></tr>
+      <tr><td>バンコク（ICT）</td><td>−2時間</td><td>10時</td></tr>
+      <tr><td>シドニー（AEST/AEDT）</td><td>+1時間（夏時間は+2時間）</td><td>13時（夏：14時）</td></tr>
+    </table>
+
+    <h3>夏時間（サマータイム）に注意</h3>
+    <p>欧米諸国は春〜秋に夏時間（サマータイム）を採用しているため、時差が季節によって変わります。アメリカでは3月第2日曜〜11月第1日曜、ヨーロッパでは3月最終日曜〜10月最終日曜が夏時間期間です。</p>
+
+    <h2>日常の時間管理に役立つ計算</h2>
+
+    <h3>通勤時間から逆算する出発時刻</h3>
+    <p>「会社に9時までに到着したい。通勤時間は45分。電車の乗り換え時間が10分かかる場合、何時に家を出ればいい？」</p>
+    <p>9時00分 − 45分（通勤）− 10分（乗り換え）= 8時05分 → 8時05分より前に出発が必要</p>
+
+    <h3>作業時間の見積もり</h3>
+    <p>プロジェクト管理や勉強計画では、タスクの作業時間を正確に見積もることが大切です。</p>
+    <ul>
+      <li>過去の類似作業の記録をつける</li>
+      <li>見積もりに「バッファ（余裕時間）」を20〜30%加える</li>
+      <li>集中できる時間は個人差があり、一般的に90分が限界とされる</li>
+    </ul>
+
+    <div class="info-box">
+      <p>💡 <strong>まとめ</strong>：時間計算は60進法という特殊な計算ルールを理解することが大切です。勤務時間・残業代・国際的な時差など、日常生活・仕事のさまざまな場面で活用できます。下記の時間計算ツールを使えば、複雑な時間の足し算・引き算も瞬時に計算できます。</p>
+    </div>
+
+    <a href="../index.html" class="tool-link">⏱️ 時間計算ツールを使う →</a>
+  </div>
+</main>
+<footer>
+  &copy; 2024 計算ツール集 ／ <a href="../index.html">ツール一覧</a> ／ <a href="../column.html">コラム</a> ／ <a href="../privacy.html">プライバシーポリシー</a>
+</footer>
+</body>
+</html>

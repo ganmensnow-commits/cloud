@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="パーセント計算の基本と応用を完全解説。セール・割引計算、ポイント還元率の比較、給与の増減率、パーセントポイントとの違いまで日常で使える計算方法をわかりやすく説明。">
+  <meta name="keywords" content="パーセント,計算,割引,セール,パーセントポイント,増減率,ポイント還元">
+  <meta name="robots" content="index, follow">
+  <title>パーセント計算を完全マスター！セール・割引・増減率の計算方法 | 計算ツール集</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1364194685674740" crossorigin="anonymous"></script>
+  <style>
+    :root { --primary: #7c3aed; --primary-light: #a78bfa; --accent: #06b6d4; --bg: #0f0f1a; --surface: rgba(255,255,255,0.04); --card-border: rgba(255,255,255,0.08); --text: #f1f5f9; --muted: #94a3b8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+    header { background: linear-gradient(135deg, #2d1b69, #4c1d95); padding: 48px 24px 40px; text-align: center; border-bottom: 1px solid var(--card-border); position: relative; overflow: hidden; }
+    header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 100%, rgba(139,92,246,0.2), transparent 70%); }
+    header .inner { position: relative; }
+    .badge { display: inline-block; background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); color: #c4b5fd; padding: 4px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 14px; }
+    header h1 { font-size: clamp(1.4rem,3vw,2rem); font-weight: 900; color: #fff; line-height: 1.4; }
+    header p { color: #ddd6fe; margin-top: 8px; font-size: 0.9rem; }
+    nav { background: rgba(15,15,26,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); padding: 14px 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
+    nav a:hover { color: var(--primary-light); }
+    main { max-width: 800px; margin: 0 auto; padding: 48px 16px 80px; }
+    .article-page { background: var(--surface); border: 1px solid var(--card-border); border-radius: 18px; padding: 40px; position: relative; overflow: hidden; }
+    .article-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), rgba(6,182,212,0.5), transparent); }
+    .meta { display: flex; gap: 16px; color: var(--muted); font-size: 0.82rem; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); flex-wrap: wrap; }
+    h2 { font-size: 1.15rem; font-weight: 800; margin: 32px 0 12px; color: #c4b5fd; display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; width: 4px; height: 1.15rem; background: linear-gradient(#8b5cf6,#06b6d4); border-radius: 2px; flex-shrink: 0; }
+    h3 { font-size: 1rem; font-weight: 700; margin: 20px 0 8px; color: #e2e8f0; }
+    p { font-size: 0.95rem; color: #cbd5e1; margin-bottom: 16px; line-height: 1.9; }
+    ul, ol { margin: 12px 0 16px 20px; font-size: 0.95rem; color: #cbd5e1; }
+    li { margin-bottom: 8px; line-height: 1.7; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 16px 0; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--card-border); text-align: left; }
+    th { color: #c4b5fd; font-weight: 700; font-size: 0.8rem; background: rgba(139,92,246,0.08); }
+    .info-box { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
+    .info-box p { margin-bottom: 0; color: var(--text); }
+    .warn-box { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
+    .warn-box p { margin-bottom: 0; color: #fcd34d; }
+    .tool-link { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; margin-top: 24px; transition: all 0.2s; }
+    .tool-link:hover { transform: translateY(-2px); }
+    .back-link { display: inline-flex; align-items: center; gap: 8px; color: #c4b5fd; text-decoration: none; font-size: 0.9rem; font-weight: 600; margin-bottom: 24px; }
+    .back-link:hover { text-decoration: underline; }
+    footer { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--card-border); margin-top: 40px; }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--primary-light); }
+  </style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <div class="badge">📊 パーセント・計算</div>
+    <h1>パーセント計算を完全マスター！<br>セール・割引・増減率の計算方法</h1>
+    <p>日常で使える4パターンのパーセント計算＋暗算テクニック</p>
+  </div>
+</header>
+<nav>
+  <a href="../index.html">⚡ ツール一覧</a>
+  <a href="../column.html">📖 コラム一覧</a>
+  <a href="../contact.html">✉️ お問い合わせ</a>
+</nav>
+<main>
+  <a class="back-link" href="../column.html">← コラム一覧に戻る</a>
+  <div class="article-page">
+    <span class="badge">📊 パーセント・計算</span>
+    <h1 style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;margin:12px 0 16px;color:#fff;line-height:1.4;">パーセント計算を完全マスター！セール・割引・増減率の計算方法</h1>
+    <div class="meta">
+      <span>📅 2024年1月</span>
+      <span>⏱️ 読了時間：約8分</span>
+      <span>🏷️ パーセント・数学・日常計算</span>
+    </div>
+
+    <p>「30%オフってどう計算すればいい？」「ポイント還元5%と10%引き、どっちがお得？」──日常生活でパーセント計算が必要な場面は意外に多いものです。この記事では、パーセント計算の基本から実践的な使い方まで、苦手な方でも理解できるよう丁寧に解説します。</p>
+
+    <h2>パーセント（%）の基本を理解する</h2>
+    <p>パーセント（%）は「全体を100として表した割合」のことです。「percent」はラテン語の「per centum（100につき）」から来ており、「100分の何か」を示します。</p>
+    <ul>
+      <li>1% = 1/100 = 0.01</li>
+      <li>10% = 10/100 = 0.1</li>
+      <li>50% = 50/100 = 0.5</li>
+      <li>100% = 100/100 = 1（全体）</li>
+      <li>200% = 200/100 = 2（全体の2倍）</li>
+    </ul>
+    <p>計算で使うときは「%を100で割った小数」を使うのが基本です。「30%」なら「0.3」として計算します。</p>
+
+    <h2>パーセント計算の4つの基本パターン</h2>
+
+    <h3>パターン1：○○の△△%を求める</h3>
+    <p>最も基本的な計算です。「1,000円の8%はいくら？」という問題です。</p>
+    <div class="info-box">
+      <p>📐 <strong>計算式</strong>：基準値 × (パーセント ÷ 100) または 基準値 × 小数<br>
+      例：1,000円の8% = 1,000 × 0.08 = 80円</p>
+    </div>
+
+    <h3>パターン2：○○は△△の何%か</h3>
+    <p>「80円は1,000円の何%？」という問題。割合を求めます。</p>
+    <div class="info-box">
+      <p>📐 <strong>計算式</strong>：(比べる値 ÷ 基準値) × 100<br>
+      例：80 ÷ 1,000 × 100 = 8%</p>
+    </div>
+
+    <h3>パターン3：△△%引き（割引後の価格）</h3>
+    <p>セールでよく使います。「1,000円の30%引きはいくら？」</p>
+    <div class="info-box">
+      <p>📐 <strong>計算式</strong>：元の価格 × (1 − パーセント÷100)<br>
+      例：1,000円の30%引き = 1,000 × (1 − 0.3) = 1,000 × 0.7 = 700円</p>
+    </div>
+
+    <h3>パターン4：増減率（変化率）を求める</h3>
+    <p>「去年の売上100万円が今年120万円になった。何%増えた？」という計算です。</p>
+    <div class="info-box">
+      <p>📐 <strong>計算式</strong>：(新しい値 − 元の値) ÷ 元の値 × 100<br>
+      例：(120 − 100) ÷ 100 × 100 = 20%増</p>
+    </div>
+
+    <h2>日常でよく使うパーセント計算の例</h2>
+
+    <h3>セール・ショッピング</h3>
+    <table>
+      <tr><th>元の価格</th><th>割引率</th><th>割引額</th><th>最終価格</th></tr>
+      <tr><td>1,980円</td><td>10%引き</td><td>198円</td><td>1,782円</td></tr>
+      <tr><td>3,800円</td><td>20%引き</td><td>760円</td><td>3,040円</td></tr>
+      <tr><td>5,000円</td><td>30%引き</td><td>1,500円</td><td>3,500円</td></tr>
+      <tr><td>10,000円</td><td>40%引き</td><td>4,000円</td><td>6,000円</td></tr>
+      <tr><td>2,500円</td><td>半額（50%引き）</td><td>1,250円</td><td>1,250円</td></tr>
+    </table>
+
+    <h3>ポイント還元の比較</h3>
+    <p>「5%ポイント還元」と「5%引き」は同じ価値ではありません。</p>
+    <ul>
+      <li><strong>5%引き</strong>：1,000円の商品 → 950円で購入。50円お得</li>
+      <li><strong>5%ポイント還元</strong>：1,000円支払い → 50ポイント（後で使える）</li>
+    </ul>
+    <p>一見同じに見えますが、ポイントには「使用期限」「使える場所の制限」「最低利用金額」などがあることが多く、実質的な価値は割引の方が高いことがほとんどです。</p>
+
+    <h2>暗算でパーセントを素早く計算するテクニック</h2>
+    <p>ショッピング中にスマホを出さなくても計算できる暗算テクニックを紹介します。</p>
+
+    <h3>10%の計算：1桁左にずらすだけ</h3>
+    <p>10%は元の価格の1/10なので、価格の最後の1桁を切り捨てるだけです。</p>
+    <ul>
+      <li>1,980円の10% → 198円（最後の桁を取り除く）</li>
+      <li>3,500円の10% → 350円</li>
+    </ul>
+
+    <h3>20%の計算：10%×2</h3>
+    <p>10%を計算してから2倍するだけです。</p>
+    <ul>
+      <li>1,980円の20% → 198×2 = 396円引き → 1,584円</li>
+    </ul>
+
+    <h3>5%の計算：10%の半分</h3>
+    <ul>
+      <li>2,000円の5% → 200÷2 = 100円</li>
+    </ul>
+
+    <h3>30%引きの計算：元の70%を求める</h3>
+    <p>「30%引き」は「元の価格×0.7」です。5,000円の30%引き = 5,000×0.7 = 3,500円。</p>
+
+    <h2>パーセントとパーセントポイントの違い</h2>
+    <p>ニュースや資料でよく混同されるのが「パーセント（%）」と「パーセントポイント（pp）」の違いです。</p>
+
+    <h3>具体例で理解する</h3>
+    <p>「支持率が30%から40%に上がった」場合：</p>
+    <ul>
+      <li><strong>パーセントポイント（pp）で表すと</strong>：40% − 30% = 10ポイント上昇（正しい表現）</li>
+      <li><strong>パーセント（%）で表すと</strong>：(40−30)÷30×100 ≒ 33%上昇（30%に対する増加率）</li>
+    </ul>
+    <p>「支持率が10%上昇した」と言うと、パーセントポイントなら30→40%、パーセント（増加率）なら30→33%という意味になります。どちらかが間違いというわけではなく、使い方の文脈が異なります。政治や経済のニュースでは「○ポイント上昇」はパーセントポイントを指すことが多いです。</p>
+
+    <div class="warn-box">
+      <p>⚠️ <strong>注意</strong>：「○%引き」と「○%になる」は全く違います。30%引きは元の価格の70%（30%減）、「30%になる」は元の価格の30%（70%減）です。広告などで「この商品が30%に！」という表現は大幅値引きを意味しますが、「30%引き」は7割の価格です。</p>
+    </div>
+
+    <h2>ビジネスでよく使うパーセント計算</h2>
+
+    <h3>利益率の計算</h3>
+    <p>商品の売価と原価から利益率を計算する方法です。</p>
+    <ul>
+      <li>売価1,000円、原価600円の場合</li>
+      <li>利益額 = 1,000 − 600 = 400円</li>
+      <li>利益率 = 400 ÷ 1,000 × 100 = 40%</li>
+    </ul>
+
+    <h3>前年比・前月比の計算</h3>
+    <p>売上や数値の変化率を求める場合の計算です。</p>
+    <ul>
+      <li>前月売上100万円、今月120万円の場合</li>
+      <li>前月比 = 120 ÷ 100 × 100 = 120%（前月比120%）</li>
+      <li>増加率 = (120−100) ÷ 100 × 100 = 20%増</li>
+    </ul>
+
+    <h3>割引後の価格から元の価格を逆算する</h3>
+    <p>セール品の元値を知りたいときに使います。「30%引きで700円の商品の元値は？」</p>
+    <ul>
+      <li>元値 = セール価格 ÷ (1 − 割引率) = 700 ÷ 0.7 = 1,000円</li>
+    </ul>
+
+    <div class="info-box">
+      <p>💡 <strong>まとめ</strong>：パーセント計算は「基準値×小数」という基本を押さえれば応用が効きます。4つの基本パターン（①○○の△%、②○○は△%、③△%引き、④増減率）を覚えておくと、日常生活でスムーズに計算できます。下記のパーセント計算ツールを使えば瞬時に正確な答えが得られます。</p>
+    </div>
+
+    <a href="../index.html" class="tool-link">📊 パーセント計算機を使う →</a>
+  </div>
+</main>
+<footer>
+  &copy; 2024 計算ツール集 ／ <a href="../index.html">ツール一覧</a> ／ <a href="../column.html">コラム</a> ／ <a href="../privacy.html">プライバシーポリシー</a>
+</footer>
+</body>
+</html>
