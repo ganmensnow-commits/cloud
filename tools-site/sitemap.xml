@@ -3,13 +3,13 @@
   <!-- メインページ -->
   <url>
     <loc>https://ganmensnow-commits.github.io/cloud/tools-site/</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ganmensnow-commits.github.io/cloud/tools-site/column.html</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -79,6 +79,12 @@
   <url>
     <loc>https://ganmensnow-commits.github.io/cloud/tools-site/articles/metabolism-tips.html</loc>
     <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ganmensnow-commits.github.io/cloud/tools-site/articles/pregnancy-due-date.html</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

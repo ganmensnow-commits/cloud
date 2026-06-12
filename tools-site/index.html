@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="年齢計算・BMI計算・割り勘計算・文字数カウント・住宅ローン・消費税・カロリー・貯金シミュレーターなど日常で使える無料計算ツール集。登録不要・完全無料。">
-  <meta name="keywords" content="計算ツール,年齢計算,BMI計算,割り勘,文字数カウント,住宅ローン計算,消費税計算,カロリー計算,貯金シミュレーター,パーセント計算,時間計算,無料">
+  <meta name="description" content="年齢計算・BMI計算・割り勘計算・文字数カウント・住宅ローン・消費税・カロリー・貯金シミュレーター・妊娠週数計算など日常で使える無料計算ツール集。登録不要・完全無料。">
+  <meta name="keywords" content="計算ツール,年齢計算,BMI計算,割り勘,文字数カウント,住宅ローン計算,消費税計算,カロリー計算,貯金シミュレーター,パーセント計算,時間計算,妊娠週数計算,出産予定日,無料">
   <meta name="robots" content="index, follow">
   <meta name="author" content="計算ツール集">
   <meta name="google-site-verification" content="PVh8bBZDqtXtAg6I9s7ynp3K6_xiUOzi8cFy8FFiTpY" />
   <link rel="canonical" href="https://ganmensnow-commits.github.io/cloud/tools-site/">
   <!-- OGP（SNSシェア用） -->
   <meta property="og:title" content="計算ツール集 | 日常で使える無料計算ツール">
-  <meta property="og:description" content="年齢・BMI・住宅ローン・割り勘・カロリーなど11種類の計算ツールを無料提供。登録不要。">
+  <meta property="og:description" content="年齢・BMI・住宅ローン・割り勘・カロリー・妊娠週数計算など12種類の計算ツールを無料提供。登録不要。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ganmensnow-commits.github.io/cloud/tools-site/">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="計算ツール集 | 日常で使える無料計算ツール">
-  <meta name="twitter:description" content="年齢・BMI・住宅ローン・割り勘・カロリーなど11種類の計算ツールを無料提供。">
+  <meta name="twitter:description" content="年齢・BMI・住宅ローン・割り勘・カロリー・妊娠週数計算など12種類の計算ツールを無料提供。">
   <!-- 構造化データ -->
   <script type="application/ld+json">
   {
@@ -25,7 +25,7 @@
     "@type": "WebSite",
     "name": "計算ツール集",
     "url": "https://ganmensnow-commits.github.io/cloud/tools-site/",
-    "description": "日常で使える無料計算ツール集。年齢計算・BMI・住宅ローン・割り勘・カロリーなど11種類。",
+    "description": "日常で使える無料計算ツール集。年齢計算・BMI・住宅ローン・割り勘・カロリー・妊娠週数計算など12種類。",
     "inLanguage": "ja"
   }
   </script>
@@ -586,6 +586,7 @@
     <a href="#" data-tool="time">⏱️ 時間</a>
     <a href="#" data-tool="calorie">🔥 カロリー</a>
     <a href="#" data-tool="savings">💰 貯金</a>
+    <a href="#" data-tool="pregnancy">👶 妊娠週数</a>
   </div>
 </nav>
 
@@ -964,6 +965,34 @@
     </div>
   </section>
 
+  <!-- 妊娠週数・出産予定日計算 -->
+  <section class="tool-section" id="tool-pregnancy">
+    <div class="card">
+      <div class="card-title"><span class="icon">👶</span>妊娠週数・出産予定日計算機</div>
+      <p class="card-desc">最終月経開始日を入力すると、現在の妊娠週数と出産予定日（ネーゲレ法）を計算します。</p>
+      <div class="input-group">
+        <label>最終月経開始日</label>
+        <input type="date" id="preg-lmp" max="">
+      </div>
+      <button class="btn btn-primary" onclick="calcPregnancy()">計算する →</button>
+      <div class="error-msg" id="preg-error">最終月経開始日を入力してください</div>
+      <div class="result-box" id="preg-result">
+        <div class="result-main" id="preg-main"></div>
+        <div class="result-sub" id="preg-sub"></div>
+        <div class="bmi-gauge">
+          <div class="bmi-bar" style="background:linear-gradient(to right, var(--accent), var(--primary), var(--pink));"><div class="bmi-pointer" id="preg-pointer"></div></div>
+          <div class="bmi-labels">
+            <span>0週</span><span>10週</span><span>20週</span><span>30週</span><span>40週</span>
+          </div>
+        </div>
+        <div class="result-grid" style="margin-top:16px;">
+          <div class="result-item"><div class="result-num" id="preg-due">—</div><div class="result-label">出産予定日</div></div>
+          <div class="result-item highlight"><div class="result-num" id="preg-trimester">—</div><div class="result-label">妊娠時期</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="ad-placeholder">広告スペース（Google AdSense）</div>
 
 </main>
@@ -992,6 +1021,7 @@
   document.getElementById('age-target').value = today;
   document.getElementById('age-birth').max = today;
   document.getElementById('cd-date').min = today;
+  document.getElementById('preg-lmp').max = today;
   renderTimeInputs();
 
   // ── 年齢計算 ──
@@ -1302,6 +1332,37 @@
     document.getElementById('sav-sub').textContent = `${years}年後の貯蓄額（年利 ${annualRate}%）`;
     document.getElementById('sav-principal').textContent = Math.round(principal).toLocaleString() + ' 円';
     document.getElementById('sav-interest').textContent = Math.round(total-principal).toLocaleString() + ' 円';
+    res.classList.add('show');
+  }
+
+  // ── 妊娠週数・出産予定日計算 ──
+  function calcPregnancy() {
+    const lmpVal = document.getElementById('preg-lmp').value;
+    const err = document.getElementById('preg-error');
+    const res = document.getElementById('preg-result');
+    if (!lmpVal) { err.classList.add('show'); res.classList.remove('show'); return; }
+    err.classList.remove('show');
+    const lmp = new Date(lmpVal + 'T00:00:00');
+    const now = new Date();
+    now.setHours(0,0,0,0);
+    const dueDate = new Date(lmp);
+    dueDate.setDate(dueDate.getDate() + 280); // ネーゲレ法（最終月経開始日 + 280日）
+    const diffDays = Math.round((now - lmp) / 86400000);
+    const weeks = Math.floor(diffDays / 7);
+    const days = diffDays % 7;
+    const remainingDays = Math.round((dueDate - now) / 86400000);
+    let trimester;
+    if (weeks < 14) trimester = '初期';
+    else if (weeks < 28) trimester = '中期';
+    else trimester = '後期';
+    const progress = Math.min(Math.max(diffDays / 280 * 100, 0), 100);
+    document.getElementById('preg-main').textContent = `妊娠 ${weeks}週${days}日`;
+    document.getElementById('preg-sub').textContent = remainingDays >= 0
+      ? `出産予定日まで あと ${remainingDays} 日`
+      : `出産予定日から ${Math.abs(remainingDays)} 日経過`;
+    document.getElementById('preg-due').textContent = dueDate.toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('preg-trimester').textContent = `妊娠${trimester}`;
+    document.getElementById('preg-pointer').style.left = `${progress}%`;
     res.classList.add('show');
   }
 </script>
