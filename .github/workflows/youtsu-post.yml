@@ -1,0 +1,40 @@
+name: 腰痛セルフケア X 自動投稿
+
+# 毎朝7:00 JST（= 22:00 UTC 前日）に実行
+on:
+  schedule:
+    - cron: "0 22 * * *"
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # current_index.json をコミットするため
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存パッケージをインストール
+        run: pip install -r x-auto-post-youtsu/requirements.txt
+
+      - name: 投稿を X に送信
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+        run: python x-auto-post-youtsu/post.py
+
+      - name: 投稿インデックスをコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add x-auto-post-youtsu/current_index.json || true
+          git diff --staged --quiet || git commit -m "chore: 腰痛投稿インデックスを更新"
+          git push
