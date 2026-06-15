@@ -1,9 +1,9 @@
 name: Proline Affiliate X Auto Post
 
-# 毎晩22:00 JST（= 13:00 UTC）に実行
+# 毎晩21:45 JST（= 12:45 UTC）に実行
 on:
   schedule:
-    - cron: "0 13 * * *"
+    - cron: "45 12 * * *"
   workflow_dispatch:  # 手動実行も可能
 
 jobs:
