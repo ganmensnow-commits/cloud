@@ -26,10 +26,10 @@ jobs:
       - name: 投稿を生成して X に送信
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          X_API_KEY: ${{ secrets.X_API_KEY }}
-          X_API_SECRET: ${{ secrets.X_API_SECRET }}
-          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
-          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          X_API_KEY: ${{ secrets.PROLINE_X_API_KEY }}
+          X_API_SECRET: ${{ secrets.PROLINE_X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.PROLINE_X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.PROLINE_X_ACCESS_TOKEN_SECRET }}
         run: python x-auto-post-proline/post.py
 
       - name: 投稿履歴をコミット
