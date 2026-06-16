@@ -121,8 +121,6 @@ def post_to_x(text: str) -> str:
         access_token=os.environ["X_ACCESS_TOKEN"],
         access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"],
     )
-    me = client.get_me()
-    print(f"[DEBUG] 投稿アカウント: @{me.data.username} (ID: {me.data.id})")
     response = client.create_tweet(text=text)
     return response.data["id"]
 
