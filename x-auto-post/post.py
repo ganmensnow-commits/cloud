@@ -115,17 +115,11 @@ def generate_post(topic: str, recent_posts: list[str], with_cta: bool, max_chars
 
 def post_to_x(text: str) -> str:
     """X API v2 で投稿する"""
-    api_key = os.environ["X_API_KEY"]
-    api_secret = os.environ["X_API_SECRET"]
-    access_token = os.environ["X_ACCESS_TOKEN"]
-    access_token_secret = os.environ["X_ACCESS_TOKEN_SECRET"]
-    print(f"[DEBUG] X_API_KEY prefix: {api_key[:6]}...")
-    print(f"[DEBUG] X_ACCESS_TOKEN prefix: {access_token[:6]}...")
     client = tweepy.Client(
-        consumer_key=api_key,
-        consumer_secret=api_secret,
-        access_token=access_token,
-        access_token_secret=access_token_secret,
+        consumer_key=os.environ["X_API_KEY"],
+        consumer_secret=os.environ["X_API_SECRET"],
+        access_token=os.environ["X_ACCESS_TOKEN"],
+        access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"],
     )
     response = client.create_tweet(text=text)
     return response.data["id"]
