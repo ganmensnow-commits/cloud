@@ -1,9 +1,9 @@
 name: Daily X Auto Post
 
-# 毎晩21:50 JST（= 12:50 UTC）に実行
+# 毎晩22:00 JST（= 13:00 UTC）に実行
 on:
   schedule:
-    - cron: "50 12 * * *"
+    - cron: "0 13 * * *"
   workflow_dispatch:  # 手動実行も可能
 
 jobs:

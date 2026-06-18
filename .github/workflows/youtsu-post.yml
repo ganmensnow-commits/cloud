@@ -1,9 +1,9 @@
 name: 腰痛セルフケア X 自動投稿
 
-# 毎朝7:05 JST（= 22:05 UTC 前日）に実行
+# 毎晩21:00 JST（= 12:00 UTC）に実行
 on:
   schedule:
-    - cron: "5 22 * * *"
+    - cron: "0 12 * * *"
   workflow_dispatch:  # 手動実行も可能
 
 jobs:
