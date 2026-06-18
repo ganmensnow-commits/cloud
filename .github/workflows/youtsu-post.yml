@@ -25,10 +25,10 @@ jobs:
 
       - name: 投稿を X に送信
         env:
-          X_API_KEY: ${{ secrets.X_API_KEY }}
-          X_API_SECRET: ${{ secrets.X_API_SECRET }}
-          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
-          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          X_API_KEY: ${{ secrets.YOUTSU_X_API_KEY }}
+          X_API_SECRET: ${{ secrets.YOUTSU_X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.YOUTSU_X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.YOUTSU_X_ACCESS_TOKEN_SECRET }}
         run: python x-auto-post-youtsu/post.py
 
       - name: 投稿インデックスをコミット
