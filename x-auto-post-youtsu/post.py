@@ -63,8 +63,13 @@ def post_to_x(text: str, media_id: str | None = None) -> str:
     if media_id:
         kwargs["media_ids"] = [media_id]
 
-    response = client.create_tweet(**kwargs)
-    return response.data["id"]
+    try:
+        response = client.create_tweet(**kwargs)
+        return response.data["id"]
+    except tweepy.errors.Forbidden as e:
+        print(f"[403詳細] api_errors: {e.api_errors}")
+        print(f"[403詳細] response text: {e.response.text if e.response else 'なし'}")
+        raise
 
 
 def main() -> None:
