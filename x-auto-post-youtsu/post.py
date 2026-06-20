@@ -63,6 +63,13 @@ def post_to_x(text: str, media_id: str | None = None) -> str:
     if media_id:
         kwargs["media_ids"] = [media_id]
 
+    # 認証確認（/2/users/me）
+    try:
+        me = client.get_me()
+        print(f"[認証OK] ユーザー: @{me.data.username} (id={me.data.id})")
+    except Exception as auth_err:
+        print(f"[認証エラー] {auth_err}")
+
     try:
         response = client.create_tweet(**kwargs)
         return response.data["id"]
