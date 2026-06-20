@@ -68,7 +68,7 @@ def post_to_x(text: str, media_id: str | None = None) -> str:
         return response.data["id"]
     except tweepy.errors.Forbidden as e:
         print(f"[403詳細] api_errors: {e.api_errors}")
-        print(f"[403詳細] response text: {e.response.text if e.response else 'なし'}")
+        print(f"[403詳細] response text: {e.response.text if e.response is not None else 'なし'}")
         raise
 
 
