@@ -23,6 +23,18 @@ jobs:
       - name: 依存パッケージをインストール
         run: pip install -r x-auto-post-youtsu/requirements.txt
 
+      - name: 認証情報を確認
+        env:
+          KEY: ${{ secrets.YOUTSU_X_API_KEY }}
+          SECRET: ${{ secrets.YOUTSU_X_API_SECRET }}
+          TOKEN: ${{ secrets.YOUTSU_X_ACCESS_TOKEN }}
+          TOKEN_SECRET: ${{ secrets.YOUTSU_X_ACCESS_TOKEN_SECRET }}
+        run: |
+          echo "API_KEY: len=${#KEY}, last4=${KEY: -4}"
+          echo "API_SECRET: len=${#SECRET}, last4=${SECRET: -4}"
+          echo "ACCESS_TOKEN: len=${#TOKEN}, last4=${TOKEN: -4}"
+          echo "ACCESS_TOKEN_SECRET: len=${#TOKEN_SECRET}, last4=${TOKEN_SECRET: -4}"
+
       - name: 投稿を X に送信
         env:
           X_API_KEY: ${{ secrets.YOUTSU_X_API_KEY }}
